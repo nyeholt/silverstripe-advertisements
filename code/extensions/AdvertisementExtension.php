@@ -19,6 +19,9 @@ class AdvertisementExtension extends DataObjectDecorator {
 			),
 			'many_many'		=> array(
 				'Advertisements'			=> 'Advertisement',
+			),
+			'has_one'		=> array(
+				'UseCampaign'				=> 'AdCampaign',
 			)
 		);
 	}
@@ -30,6 +33,7 @@ class AdvertisementExtension extends DataObjectDecorator {
 //		$fields->addFieldToTab('Root.Advertisements', new CheckboxField('UseRandom', _t('Advertisements.USE_RANDOM', 'Use random selection')));
 		$fields->addFieldToTab('Root.Advertisements', new NumericField('NumberOfAds', _t('Advertisements.NUM_ADS', 'How many Ads should be returned?')));
 		$fields->addFieldToTab('Root.Advertisements', new ManyManyPickerField($this->owner, 'Advertisements'));
+		$fields->addFieldToTab('Root.Advertisements', new HasOnePickerField($this->owner, 'UseCampaign'));
 	}
 	
 	public function AdList() {
@@ -44,11 +48,18 @@ class AdvertisementExtension extends DataObjectDecorator {
 		}
 		
 		$ads = null;
+		
+		// If set to use a campaign, just switch to that as our context. 
+		if ($toUse->UseCampaignID) {
+			$toUse = $toUse->UseCampaign();
+		}
+		
 		if ($this->owner->NumberOfAds) {
 			$ads = $toUse->getManyManyComponents('Advertisements', '', '', '', $this->owner->NumberOfAds);
 		} else {
 			$ads = $toUse->Advertisements();
 		}
+		
 		return $ads;
 	}
 }

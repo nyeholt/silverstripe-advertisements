@@ -12,6 +12,10 @@ class AdCampaign extends DataObject {
 		'Expires'			=> 'Date'
 	);
 	
+	public static $has_many = array(
+		'Advertisements'		=> 'Advertisement',
+	);
+	
 	public static $has_one = array(
 		'Client'			=> 'AdClient',
 	);
