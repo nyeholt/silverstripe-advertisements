@@ -11,7 +11,7 @@ Marcus Nyeholt
 ## Requirements
 
 SilverStripe 2.4.x
-External Content module from http://github.com/nyeholt/silverstripe-external-content
+ItemSetField module from http://github.com/ajshort/silverstripe-itemsetfield
 
 ## Documentation
 

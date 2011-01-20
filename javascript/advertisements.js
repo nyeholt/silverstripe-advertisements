@@ -12,12 +12,12 @@
 			var adId = $(this).attr('adid');
 			impressions.push(adId);
 			
-			$(this).mouseup(function (b) {
-				if (b.which < 3) {
-					$.post(base + 'adclick/clk', {id: adId});
-				}
-				return true;
-			})
+//			$(this).mouseup(function (b) {
+//				if (b.which < 3) {
+//					$.post(base + 'adclick/clk', {id: adId});
+//				}
+//				return true;
+//			})
 		});
 		
 		var processImpressions = function () {

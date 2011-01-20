@@ -26,13 +26,34 @@ class Advertisement extends DataObject {
 		)));
 		
 		if ($this->ID) {
+			$query = new SQLQuery('COUNT(*) AS Impressions', 'AdImpression', '"ClassName" = \'AdImpression\' AND "AdID" = '.$this->ID);
+			$res = $query->execute();
+			$obj = $res->first();
+			
+			$impressions = 0;
+			if ($obj) {
+				$impressions = $obj['Impressions'];
+			}
+			
+			$query = new SQLQuery('COUNT(*) AS Clicks', 'AdImpression', '"ClassName" = \'AdClick\' AND "AdID" = '.$this->ID);
+			$res = $query->execute();
+			$obj = $res->first();
+			
+			$clicks = 0;
+			if ($obj) {
+				$clicks = $obj['Clicks'];
+			}
+
+			$fields->addFieldToTab('Root.Main', new ReadonlyField('Impressions', 'Impressions', $impressions), 'Title');
+			$fields->addFieldToTab('Root.Main', new ReadonlyField('Clicks', 'Clicks', $clicks), 'Title');
+			
 			$fields->addFieldsToTab('Root.Main', array(
 				new ImageField('Image'),
 				new Treedropdownfield('InternalPageID', 'Internal Page Link', 'Page'),
 				new HasOnePickerField($this, 'Campaign', 'Ad Campaign')
 			));
 		}
-		
+
 		return $fields;
 	}
 	
@@ -46,10 +67,19 @@ class Advertisement extends DataObject {
 			$inner = $this->Image()->forTemplate();
 		}
 		
-		$link = Convert::raw2att($this->InternalPageID ? $this->InternalPage()->Link() : $this->TargetURL);
+//		$link = Convert::raw2att($this->InternalPageID ? $this->InternalPage()->AbsoluteLink() : $this->TargetURL);
+//		$link = Controller::join_links(Director::baseURL(), 'adclick/go?link='.urlencode($link));
 		
-		$tag = '<a class="adlink" href="'.$link.'" adid="'.$this->ID.'">'.$inner.'</a>';
-		
+		$tag = '<a class="adlink" href="'.$this->Link().'" adid="'.$this->ID.'">'.$inner.'</a>';
+
 		return $tag;
+	}
+	
+	public function Link() {
+		$link = Controller::join_links(Director::baseURL(), 'adclick/go/'.$this->ID);
+	}
+	
+	public function getTarget() {
+		return $this->InternalPageID ? $this->InternalPage()->AbsoluteLink() : $this->TargetURL;
 	}
 }
