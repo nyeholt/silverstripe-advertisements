@@ -7,6 +7,9 @@
  * @license BSD http://silverstripe.org/BSD-license
  */
 class Advertisement extends DataObject {
+	
+	public static $use_js_tracking = true;
+	
 	public static $db = array(
 		'Title'				=> 'Varchar',
 		'TargetURL'			=> 'Varchar(255)',
@@ -58,9 +61,6 @@ class Advertisement extends DataObject {
 	}
 	
 	public function forTemplate($width = null, $height = null) {
-		Requirements::javascript(THIRDPARTY_DIR.'/jquery/jquery-packed.js');
-		Requirements::javascript(THIRDPARTY_DIR.'/jquery-livequery/jquery.livequery.js');
-		Requirements::javascript('advertisements/javascript/advertisements.js');
 		
 		$inner = Convert::raw2xml($this->Title);
 		if ($this->ImageID) {
@@ -72,10 +72,12 @@ class Advertisement extends DataObject {
 			
 		}
 		
-//		$link = Convert::raw2att($this->InternalPageID ? $this->InternalPage()->AbsoluteLink() : $this->TargetURL);
-//		$link = Controller::join_links(Director::baseURL(), 'adclick/go?link='.urlencode($link));
+		$class = '';
+		if (self::$use_js_tracking) {
+			$class = 'class="adlink" ';
+		}
 		
-		$tag = '<a class="adlink" href="'.$this->Link().'" adid="'.$this->ID.'">'.$inner.'</a>';
+		$tag = '<a '.$class.' href="'.$this->Link().'" adid="'.$this->ID.'">'.$inner.'</a>';
 
 		return $tag;
 	}
@@ -85,7 +87,17 @@ class Advertisement extends DataObject {
 	}
 	
 	public function Link() {
-		return Controller::join_links(Director::baseURL(), 'adclick/go/'.$this->ID);
+		if (self::$use_js_tracking) {
+			Requirements::javascript(THIRDPARTY_DIR.'/jquery/jquery-packed.js');
+			Requirements::javascript(THIRDPARTY_DIR.'/jquery-livequery/jquery.livequery.js');
+			Requirements::javascript('advertisements/javascript/advertisements.js');
+
+			$link = Convert::raw2att($this->InternalPageID ? $this->InternalPage()->AbsoluteLink() : $this->TargetURL);
+			
+		} else {
+			$link = Controller::join_links(Director::baseURL(), 'adclick/go/'.$this->ID);
+		}
+		return $link;
 	}
 	
 	public function getTarget() {
