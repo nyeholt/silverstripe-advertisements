@@ -57,14 +57,19 @@ class Advertisement extends DataObject {
 		return $fields;
 	}
 	
-	public function forTemplate() {
+	public function forTemplate($width = null, $height = null) {
 		Requirements::javascript(THIRDPARTY_DIR.'/jquery/jquery-packed.js');
 		Requirements::javascript(THIRDPARTY_DIR.'/jquery-livequery/jquery.livequery.js');
 		Requirements::javascript('advertisements/javascript/advertisements.js');
 		
 		$inner = Convert::raw2xml($this->Title);
 		if ($this->ImageID) {
-			$inner = $this->Image()->forTemplate();
+			if ($width) {
+				$inner = $this->Image()->SetRatioSize($width, $height)->forTemplate();
+			} else {
+				$inner = $this->Image()->forTemplate();
+			}
+			
 		}
 		
 //		$link = Convert::raw2att($this->InternalPageID ? $this->InternalPage()->AbsoluteLink() : $this->TargetURL);
@@ -75,8 +80,12 @@ class Advertisement extends DataObject {
 		return $tag;
 	}
 	
+	public function SetRatioSize($width, $height) {
+		return $this->forTemplate($width, $height);
+	}
+	
 	public function Link() {
-		$link = Controller::join_links(Director::baseURL(), 'adclick/go/'.$this->ID);
+		return Controller::join_links(Director::baseURL(), 'adclick/go/'.$this->ID);
 	}
 	
 	public function getTarget() {
