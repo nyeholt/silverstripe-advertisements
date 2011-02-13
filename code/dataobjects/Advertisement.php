@@ -63,7 +63,7 @@ class Advertisement extends DataObject {
 	public function forTemplate($width = null, $height = null) {
 		
 		$inner = Convert::raw2xml($this->Title);
-		if ($this->ImageID) {
+		if ($this->ImageID && $this->Image()->ID) {
 			if ($width) {
 				$inner = $this->Image()->SetRatioSize($width, $height)->forTemplate();
 			} else {
