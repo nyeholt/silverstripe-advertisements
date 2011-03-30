@@ -21,6 +21,8 @@ class Advertisement extends DataObject {
 		'Image'				=> 'Image',
 	);
 	
+	public static $summary_fields = array('Title');
+	
 	public function getCMSFields() {
 		$fields = new FieldSet();
 		$fields->push(new TabSet('Root', new Tab('Main', 
@@ -29,23 +31,8 @@ class Advertisement extends DataObject {
 		)));
 		
 		if ($this->ID) {
-			$query = new SQLQuery('COUNT(*) AS Impressions', 'AdImpression', '"ClassName" = \'AdImpression\' AND "AdID" = '.$this->ID);
-			$res = $query->execute();
-			$obj = $res->first();
-			
-			$impressions = 0;
-			if ($obj) {
-				$impressions = $obj['Impressions'];
-			}
-			
-			$query = new SQLQuery('COUNT(*) AS Clicks', 'AdImpression', '"ClassName" = \'AdClick\' AND "AdID" = '.$this->ID);
-			$res = $query->execute();
-			$obj = $res->first();
-			
-			$clicks = 0;
-			if ($obj) {
-				$clicks = $obj['Clicks'];
-			}
+			$impressions = $this->getImpressions();
+			$clicks = $this->getClicks();
 
 			$fields->addFieldToTab('Root.Main', new ReadonlyField('Impressions', 'Impressions', $impressions), 'Title');
 			$fields->addFieldToTab('Root.Main', new ReadonlyField('Clicks', 'Clicks', $clicks), 'Title');
@@ -58,6 +45,41 @@ class Advertisement extends DataObject {
 		}
 
 		return $fields;
+	}
+	
+	protected $impressions;
+
+	public function getImpressions() {
+		if (!$this->impressions) {
+			$query = new SQLQuery('COUNT(*) AS Impressions', 'AdImpression', '"ClassName" = \'AdImpression\' AND "AdID" = '.$this->ID);
+			$res = $query->execute();
+			$obj = $res->first();
+
+			$this->impressions = 0;
+			if ($obj) {
+				$this->impressions = $obj['Impressions'];
+			}
+			
+		}
+
+		return $this->impressions;
+	}
+	
+	protected $clicks;
+	
+	public function getClicks() {
+		if (!$this->clicks) {
+			$query = new SQLQuery('COUNT(*) AS Clicks', 'AdImpression', '"ClassName" = \'AdClick\' AND "AdID" = '.$this->ID);
+			$res = $query->execute();
+			$obj = $res->first();
+
+			$this->clicks = 0;
+			if ($obj) {
+				$this->clicks = $obj['Clicks'];
+			}
+		}
+		
+		return $this->clicks;
 	}
 	
 	public function forTemplate($width = null, $height = null) {
