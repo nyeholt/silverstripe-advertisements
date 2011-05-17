@@ -18,11 +18,36 @@ ItemSetField module from http://github.com/ajshort/silverstripe-itemsetfield
 Add 
 
 `Object::add_extension('Page', 'AdvertisementExtension');`
+`Object::add_extension('SiteConfig', 'AdvertisementExtension');`
 
 to your _config.php file.
 
-In /admin, navigate to the "Ads" tab and create a new add. Navigate to the page you want the ad
-to appear on and select the ad via the "Advertisements" tab. 
+Note that ads are inherited hierarchically, so setting ads on the Site Config 
+will mean those ads are used across all pages unless specified for a content
+tree otherwise. 
+
+
+* Navigate to the "Ads" section
+* Create some Advertisements
+* If you want to group the ads in a collection, create an Ad Campaign. These in turn can be associated with a client. 
+* On the Advertisements tab of a page (or Site Config), you can select the individual ads (or campaign) to be displayed. 
+* In your page template, use the AdList collection to actually list out the Ads to be displayed. Use the "Me" or "SetRatioSize" helpers to output an image linked as needed for proper click tracking. 
+
+	<% control SiteConfig.AdList %>
+	<div class="ad">
+		$Me
+		<!-- Or, to scale it appropriately -->
+		$SetRatioSize(120,80)
+	
+	</div>
+	<% end_control %>
+
+* You can have complete control over how things are output by referring to the ad's Image and Link accessors. Be aware that if you're going to manually output the link, to include a special attribute used if tracking ad views (eg Advertisement::$use_js_tracking = true). So, output something like
+
+	<a href="$Link" class="adlink" adid="$ID"><img src="$Image.Link" /></a>
+
+
+Check the Advertisement class for more. 
 
 ## TODO
 
