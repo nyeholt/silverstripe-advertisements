@@ -83,15 +83,17 @@ class Advertisement extends DataObject {
 	}
 	
 	public function forTemplate($width = null, $height = null) {
-		
 		$inner = Convert::raw2xml($this->Title);
 		if ($this->ImageID && $this->Image()->ID) {
 			if ($width) {
-				$inner = $this->Image()->SetRatioSize($width, $height)->forTemplate();
+                $converted = $this->Image()->SetRatioSize($width, $height);
+                if ($converted) {
+                    $inner = $converted->forTemplate();
+                }
+				
 			} else {
-				$inner = $this->Image()->forTemplate();
+                $inner = $this->Image()->forTemplate();
 			}
-			
 		}
 		
 		$class = '';
