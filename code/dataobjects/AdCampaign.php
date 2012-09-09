@@ -19,4 +19,23 @@ class AdCampaign extends DataObject {
 	public static $has_one = array(
 		'Client'			=> 'AdClient',
 	);
+	
+	public function getRandomAd() {
+		$number = $this->Advertisements()->count();
+		if ($number) {
+			--$number;
+			$rand = mt_rand(0, $number);
+			$items = $this->Advertisements()->toArray();
+			return $items[$rand];
+		}
+	}
+
+	public function getCMSFields($params = null) {
+		$fields = parent::getCMSFields($params);
+		
+		$field = new HasManyPickerField($this, 'Advertisements');
+		$fields->addFieldToTab('Root.Advertisements', $field);
+		
+		return $fields;
+	}
 }
