@@ -7,17 +7,17 @@
  * @license BSD http://silverstripe.org/BSD-license
  */
 class AdAdmin extends ModelAdmin {
-	public static $managed_models = array(
+	private static $managed_models = array(
 		'Advertisement',
 		'AdCampaign',
 		'AdClient',
 	);
 	
-	public static $url_segment = 'advertisements';
-	public static $menu_title = 'Ads';
-	public static $collection_controller_class = "AdAdmin_Controller";
+	private static $url_segment = 'advertisements';
+	private static $menu_title = 'Ads';
 }
 
+/*
 class AdAdmin_Controller extends ModelAdmin_CollectionController {
 	function getResultsTable($searchCriteria) {
 		$summaryFields = $this->getResultColumns($searchCriteria);
@@ -54,3 +54,4 @@ class AdAdmin_Controller extends ModelAdmin_CollectionController {
 	}
 }
 
+*/

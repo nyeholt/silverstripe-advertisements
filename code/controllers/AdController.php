@@ -10,6 +10,11 @@ class AdController extends Controller {
 	
 	public static $record_impressions = true;
 	
+	private static $allowed_actions = array(
+		'imp',
+		'go',
+		'clk',
+	);
 	
 	public function imp() {
 		if (!self::$record_impressions) {

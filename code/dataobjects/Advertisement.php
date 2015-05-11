@@ -8,23 +8,23 @@
  */
 class Advertisement extends DataObject {
 	
-	public static $use_js_tracking = true;
+	private static $use_js_tracking = false;
 	
-	public static $db = array(
+	private static $db = array(
 		'Title'				=> 'Varchar',
 		'TargetURL'			=> 'Varchar(255)',
 	);
 	
-	public static $has_one = array(
+	private static $has_one = array(
 		'InternalPage'		=> 'Page',
 		'Campaign'			=> 'AdCampaign',
 		'Image'				=> 'Image',
 	);
 	
-	public static $summary_fields = array('Title');
+	private static $summary_fields = array('Title');
 	
 	public function getCMSFields() {
-		$fields = new FieldSet();
+		$fields = new FieldList();
 		$fields->push(new TabSet('Root', new Tab('Main', 
 			new TextField('Title', 'Title'),
 			new TextField('TargetURL', 'Target URL')
@@ -38,9 +38,9 @@ class Advertisement extends DataObject {
 			$fields->addFieldToTab('Root.Main', new ReadonlyField('Clicks', 'Clicks', $clicks), 'Title');
 			
 			$fields->addFieldsToTab('Root.Main', array(
-				new ImageField('Image'),
+				new UploadField('Image'),
 				new Treedropdownfield('InternalPageID', 'Internal Page Link', 'Page'),
-				new HasOnePickerField($this, 'Campaign', 'Ad Campaign')
+				new DropdownField('CampaignID', 'Ad Campaign', AdCampaign::get())
 			));
 		}
 
@@ -51,15 +51,19 @@ class Advertisement extends DataObject {
 
 	public function getImpressions() {
 		if (!$this->impressions) {
-			$query = new SQLQuery('COUNT(*) AS Impressions', 'AdImpression', '"ClassName" = \'AdImpression\' AND "AdID" = '.$this->ID);
+			/*$query = new SQLQuery('COUNT(*) AS Impressions', 'AdImpression', '"ClassName" = \'AdImpression\' AND "AdID" = '.$this->ID);
 			$res = $query->execute();
 			$obj = $res->first();
 
 			$this->impressions = 0;
 			if ($obj) {
 				$this->impressions = $obj['Impressions'];
-			}
+			}*/
 			
+			$this->impressions = AdImpression::get()->filter(array(
+				'ClassName' => 'AdImpression', 
+				'AdID' => $this->ID
+			))->count();
 		}
 
 		return $this->impressions;
@@ -69,16 +73,12 @@ class Advertisement extends DataObject {
 	
 	public function getClicks() {
 		if (!$this->clicks) {
-			$query = new SQLQuery('COUNT(*) AS Clicks', 'AdImpression', '"ClassName" = \'AdClick\' AND "AdID" = '.$this->ID);
-			$res = $query->execute();
-			$obj = $res->first();
-
 			$this->clicks = 0;
-			if ($obj) {
-				$this->clicks = $obj['Clicks'];
-			}
+			$this->clicks = AdImpression::get()->filter(array(
+				'ClassName' => 'AdClick', 
+				'AdID' => $this->ID
+			))->count();
 		}
-		
 		return $this->clicks;
 	}
 	
@@ -112,7 +112,7 @@ class Advertisement extends DataObject {
 	
 	public function Link() {
 		if (self::$use_js_tracking) {
-			Requirements::javascript(THIRDPARTY_DIR.'/jquery/jquery-packed.js');
+			Requirements::javascript(THIRDPARTY_DIR.'/jquery/jquery.js');
 			Requirements::javascript(THIRDPARTY_DIR.'/jquery-livequery/jquery.livequery.js');
 			Requirements::javascript('advertisements/javascript/advertisements.js');
 
