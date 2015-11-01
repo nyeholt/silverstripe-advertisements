@@ -35,7 +35,7 @@ class AdvertisementExtension extends DataExtension {
 		$fields->addFieldToTab('Root.Advertisements', $gf);
 //		$fields->addFieldToTab('Root.Advertisements', new ManyManyPickerField($this->owner, 'Advertisements'));
 		$fields->addFieldToTab('Root.Advertisements', $df = new DropdownField('UseCampaignID', 'Use campaign', AdCampaign::get()->map()));
-		$df->setEmptyString('OR Select campaign');
+		$df->setEmptyString('-- OR Select campaign --');
 	}	
 	
 	public function AdList() {
@@ -62,5 +62,10 @@ class AdvertisementExtension extends DataExtension {
 		}
 		
 		return $ads;
+	}
+	
+	public function findAd($name) {
+		$ad = Advertisement::get()->filter('Title', $name)->first();
+		return $ad;
 	}
 }

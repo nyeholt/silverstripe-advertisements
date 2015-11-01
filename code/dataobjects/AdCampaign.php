@@ -1,7 +1,6 @@
 <?php
 
 /**
- * Description of AdCampaign
  *
  * @author Marcus Nyeholt <marcus@silverstripe.com.au>
  * @license BSD http://silverstripe.org/BSD-license
@@ -28,14 +27,5 @@ class AdCampaign extends DataObject {
 			$items = $this->Advertisements()->toArray();
 			return $items[$rand];
 		}
-	}
-
-	public function getCMSFields($params = null) {
-		$fields = parent::getCMSFields($params);
-		
-		$field = new HasManyPickerField($this, 'Advertisements');
-		$fields->addFieldToTab('Root.Advertisements', $field);
-		
-		return $fields;
 	}
 }

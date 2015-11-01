@@ -1,0 +1,23 @@
+{
+	"name": "nyeholt/silverstripe-advertisements",
+	"type": "silverstripe-module",
+	"description": "A simple mechanism for implementing tracked advertisements",
+	"license": "BSD-3-Clause",
+	"keywords": ["silverstripe", "advertisements", "ad campaign"],
+	"homepage": "https://github.com/nyeholt/silverstripe-advertisements",
+	"authors": [
+		{
+			"name": "Marcus Nyeholt",
+			"email": "marcus@silverstripe.com.au"
+		}
+	],
+	"require": {
+		"silverstripe/framework": "3.*"
+	},
+	"extra": {
+		"installer-name": "advertisements",
+		"branch-alias": {
+			"dev-master": "1.0.x-dev"
+		}
+	}
+}
