@@ -49,7 +49,9 @@ tree otherwise.
 
 * You can have complete control over how things are output by referring to the ad's Image and Link accessors. Be aware that if you're going to manually output the link, to include a special attribute used if tracking ad views (eg Advertisement::$use\_js\_tracking = true). So, output something like
 
-	<a href="$Link" class="adlink" adid="$ID"><img src="$Image.Link" /></a>
+```
+<a href="$Link" class="adlink" adid="$ID"><img src="$Image.Link" /></a>
+```
 
 * Reference an ad directly from a template via
 
