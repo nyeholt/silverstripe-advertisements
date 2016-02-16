@@ -7,15 +7,15 @@
  * @license BSD http://silverstripe.org/BSD-license
  */
 class AdController extends Controller {
-	
+
 	public static $record_impressions = true;
-	
+
 	private static $allowed_actions = array(
 		'imp',
 		'go',
 		'clk',
 	);
-	
+
 	public function imp() {
 		if (!self::$record_impressions) {
 			return;
@@ -32,7 +32,7 @@ class AdController extends Controller {
 			}
 		}
 	}
-	
+
 	public function clk() {
 		if ($this->request->requestVar('id')) {
 			$id = (int) $this->request->requestVar('id');
@@ -43,10 +43,10 @@ class AdController extends Controller {
 			}
 		}
 	}
-	
+
 	public function go() {
 		$id = (int) $this->request->param('ID');
-		
+
 		if ($id) {
 			$ad = DataObject::get_by_id('Advertisement', $id);
 			if ($ad && $ad->exists()) {
