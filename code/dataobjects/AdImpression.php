@@ -18,7 +18,7 @@ class AdImpression extends DataObject {
 		'ViewYear'			=> 'Int',
 		'Referer'			=> 'Varchar',
 		'RemoteIP'			=> 'Varchar',
-		
+
 	);
 
 	public static $has_one = array(
@@ -70,7 +70,7 @@ function get_browser_info()
     elseif (preg_match('/windows|win32/i', $u_agent)) {
         $platform = 'windows';
     }
-    
+
     // Next get the name of the useragent yes seperately and for good reason
     if(preg_match('/MSIE/i',$u_agent) && !preg_match('/Opera/i',$u_agent))
     {
@@ -102,7 +102,7 @@ function get_browser_info()
         $bname = 'Netscape';
         $ub = "Netscape";
     }
-    
+
     // finally get the correct version number
     $known = array('Version', $ub, 'other');
     $pattern = '#(?P<browser>' . join('|', $known) .
@@ -110,7 +110,7 @@ function get_browser_info()
     if (!preg_match_all($pattern, $u_agent, $matches)) {
         // we have no matching number just continue
     }
-    
+
     // see how many we have
     $i = count($matches['browser']);
     if ($i != 1) {
@@ -126,10 +126,10 @@ function get_browser_info()
     else {
         $version= $matches['version'][0];
     }
-    
+
     // check if we have a number
     if ($version==null || $version=="") {$version="?";}
-    
+
     return array(
         'user_agent' => $u_agent,
         'name' => $bname,

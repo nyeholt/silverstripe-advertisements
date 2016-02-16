@@ -7,5 +7,5 @@
  * @license BSD http://silverstripe.org/BSD-license
  */
 class AdClick extends AdImpression {
-	
+
 }

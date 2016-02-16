@@ -1,6 +1,6 @@
 # SilverStripe Advertisement Management module
 
-A simple module to manage advertisements on pages. 
+A simple module to manage advertisements on pages.
 
 ## Maintainer Contact
 
@@ -14,7 +14,7 @@ SilverStripe 3.1.x
 
 ## Documentation
 
-Add 
+Add
 
 ```
 Page:
@@ -27,23 +27,23 @@ SiteConfig:
 
 to your project's configuration yml file.
 
-Note that ads are inherited hierarchically, so setting ads on the Site Config 
+Note that ads are inherited hierarchically, so setting ads on the Site Config
 will mean those ads are used across all pages unless specified for a content
-tree otherwise. 
+tree otherwise.
 
 
 * Navigate to the "Ads" section
 * Create some Advertisements
-* If you want to group the ads in a collection, create an Ad Campaign. These in turn can be associated with a client. 
-* On the Advertisements tab of a page (or Site Config), you can select the individual ads (or campaign) to be displayed. 
-* In your page template, use the AdList collection to actually list out the Ads to be displayed. Use the "Me" or "SetRatioSize" helpers to output an image linked as needed for proper click tracking. 
+* If you want to group the ads in a collection, create an Ad Campaign. These in turn can be associated with a client.
+* On the Advertisements tab of a page (or Site Config), you can select the individual ads (or campaign) to be displayed.
+* In your page template, use the AdList collection to actually list out the Ads to be displayed. Use the "Me" or "SetRatioSize" helpers to output an image linked as needed for proper click tracking.
 
 	<% loop SiteConfig.AdList %>
 	<div class="ad">
 		$Me
 		<!-- Or, to scale it appropriately -->
 		$SetRatioSize(120,80)
-	
+
 	</div>
 	<% end_loop %>
 
@@ -60,7 +60,7 @@ $findAd(Title)
 ```
 
 
-Check the Advertisement class for more. 
+Check the Advertisement class for more.
 
 ## TODO
 

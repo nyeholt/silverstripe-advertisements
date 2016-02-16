@@ -10,15 +10,15 @@ class AdCampaign extends DataObject {
 		'Title'				=> 'Varchar',
 		'Expires'			=> 'Date'
 	);
-	
+
 	public static $has_many = array(
 		'Advertisements'		=> 'Advertisement',
 	);
-	
+
 	public static $has_one = array(
 		'Client'			=> 'AdClient',
 	);
-	
+
 	public function getRandomAd() {
 		$number = $this->Advertisements()->count();
 		if ($number) {

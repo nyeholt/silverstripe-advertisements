@@ -12,7 +12,7 @@ class AdAdmin extends ModelAdmin {
 		'AdCampaign',
 		'AdClient',
 	);
-	
+
 	private static $url_segment = 'advertisements';
 	private static $menu_title = 'Ads';
 }
@@ -29,7 +29,7 @@ class AdAdmin_Controller extends ModelAdmin_CollectionController {
 				'Impressions' => 'Impressions',
 			);
 		}
-		
+
 		$className = $this->parentController->resultsTableClassName();
 		$tf = new $className(
 			$this->modelClass,
@@ -49,7 +49,7 @@ class AdAdmin_Controller extends ModelAdmin_CollectionController {
 
 		$url = '<a href=\"' . $this->Link() . '/$ID/edit\">$value</a>';
 		$tf->setFieldFormatting(array_combine(array_keys($summaryFields), array_fill(0,count($summaryFields), $url)));
-	
+
 		return $tf;
 	}
 }
