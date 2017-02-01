@@ -37,7 +37,7 @@ class AdController extends Controller {
 		if ($this->request->requestVar('id')) {
 			$id = (int) $this->request->requestVar('id');
 			if ($id) {
-				$imp = new AdClick;
+				$imp = AdImpression::create(['Interaction' => 'Click']);
 				$imp->AdID = $id;
 				$imp->write();
 			}
@@ -50,7 +50,7 @@ class AdController extends Controller {
 		if ($id) {
 			$ad = DataObject::get_by_id('Advertisement', $id);
 			if ($ad && $ad->exists()) {
-				$imp = new AdClick;
+				$imp = AdImpression::create(['Interaction' => 'Click']);
 				$imp->AdID = $id;
 				$imp->write();
 

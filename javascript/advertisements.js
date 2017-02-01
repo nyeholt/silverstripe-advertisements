@@ -3,34 +3,40 @@
 	$().ready(function () {
 
 		var base = $('base').attr('href');
-		var impressions = [];
+		var recorded = {};
+        
+        
+			impressions.push(adId);
+
+
 
 		/**
 		 * each time an ad link comes up, add it to the impressions
 		 */
-		$('.adlink').livequery(function () {
-			var adId = $(this).attr('adid');
-			impressions.push(adId);
-
-			$(this).mouseup(function (b) {
-				if (b.which < 3) {
-					$.post(base + 'adclick/clk', {id: adId});
-				}
-				return true;
-			})
+		$(document).on('mouseup', '.adlink', function (b) {
+            var adId = $(this).attr('adid');
+            if (b.which < 3) {
+                $.post(base + 'adclick/clk', {id: adId});
+            }
+            return true;
 		});
 
 		var processImpressions = function () {
-			if (impressions.length) {
-				var ids = impressions.join(',');
-				$.post(base + 'adclick/imp', {ids: ids});
-				impressions = [];
+            var ads = $('.adlink');
+            var ids = [];
+            for (var i = 0, c = ads.length; i < c; i++) {
+                var adId = $(ads[i]).attr('adid');
+                if (recorded[adId]) {
+                    continue;
+                }
+                recorded[adId] = true;
+                ids.push(adId);
+            }
 
-				setTimeout(processImpressions, 2000);
+			if (ids.length) {
+				$.post(base + 'adclick/imp', {ids: ids.join(',')});
+				setTimeout(processImpressions, 10000);
 			}
 		}
-
-		processImpressions();
-
 	});
 })(jQuery);

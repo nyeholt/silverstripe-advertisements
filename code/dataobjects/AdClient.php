@@ -1,8 +1,6 @@
 <?php
 
 /**
- * Description of AdClient
- *
  * @author Marcus Nyeholt <marcus@silverstripe.com.au>
  * @license BSD http://silverstripe.org/BSD-license
  */

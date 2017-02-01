@@ -13,6 +13,14 @@ class Advertisement extends DataObject {
 	private static $db = array(
 		'Title'				=> 'Varchar',
 		'TargetURL'			=> 'Varchar(255)',
+
+        'HTMLContent'       => 'HTMLText',
+
+        'Element'           => 'Varchar(64)',   // within which containing element will it display?
+        'Location'          => 'Varchar(64)',   // where in its container element?
+        'Frequency'         => 'Int',           // how often? 1 in X number of users see this
+        'Timeout'           => 'Int',            // how long until it displays?
+        'HideAfterInteraction'  => 'Boolean',   // should the item not appear if someone has interacted with it?
 	);
 
 	private static $has_one = array(
@@ -21,13 +29,28 @@ class Advertisement extends DataObject {
 		'Image'				=> 'Image',
 	);
 
+    private static $many_many = array(
+        'OnPages'       => 'SiteTree',
+    );
+
 	private static $summary_fields = array('Title');
 
 	public function getCMSFields() {
 		$fields = new FieldList();
+
+        $locations = ['prepend' => 'Top', 'append' => 'Bottom'];
+
+        
 		$fields->push(new TabSet('Root', new Tab('Main',
 			new TextField('Title', 'Title'),
-			new TextField('TargetURL', 'Target URL')
+			TextField::create('TargetURL', 'Target URL')->setRightTitle('Or select a page below'),
+            new Treedropdownfield('InternalPageID', 'Internal Page Link', 'Page'),
+            TextField::create('Element', 'Within Element')->setRightTitle('CSS selector for element to display within'),
+            DropdownField::create('Location', 'Callout location in element', $locations),
+            NumericField::create('Frequency', 'Display frequency')->setRightTitle('1 in N number of people will see this'),
+            NumericField::create('Timeout', 'Delay display (seconds)'),
+            CheckboxField::create('HideAfterInteraction'),
+            DropdownField::create('CampaignID', 'Campaign', AdCampaign::get())->setEmptyString('--none--')
 		)));
 
 		if ($this->ID) {
@@ -37,13 +60,15 @@ class Advertisement extends DataObject {
 			$fields->addFieldToTab('Root.Main', new ReadonlyField('Impressions', 'Impressions', $impressions), 'Title');
 			$fields->addFieldToTab('Root.Main', new ReadonlyField('Clicks', 'Clicks', $clicks), 'Title');
 
-			$fields->addFieldsToTab('Root.Main', array(
-				new UploadField('Image'),
-				new Treedropdownfield('InternalPageID', 'Internal Page Link', 'Page'),
-				new DropdownField('CampaignID', 'Ad Campaign', AdCampaign::get())
-			));
+            $fields->addFieldToTab('Root.Main', TreeMultiselectField::create('OnPages', 'Display on pages', 'Page'), 'Element');
+
+            $fields->addFieldsToTab('Root.Content', array(
+                new UploadField('Image'),
+                new TextareaField('HTMLContent')
+            ));
 		}
 
+        Versioned::reading_stage('Stage');
 		return $fields;
 	}
 
@@ -61,7 +86,7 @@ class Advertisement extends DataObject {
 			}*/
 
 			$this->impressions = AdImpression::get()->filter(array(
-				'ClassName' => 'AdImpression',
+				'Interaction' => 'View',
 				'AdID' => $this->ID
 			))->count();
 		}
@@ -75,7 +100,7 @@ class Advertisement extends DataObject {
 		if (!$this->clicks) {
 			$this->clicks = 0;
 			$this->clicks = AdImpression::get()->filter(array(
-				'ClassName' => 'AdClick',
+				'Interaction' => 'Click',
 				'AdID' => $this->ID
 			))->count();
 		}
@@ -97,7 +122,7 @@ class Advertisement extends DataObject {
 		}
 
 		$class = '';
-		if (self::$use_js_tracking) {
+		if (self::config()->use_js_tracking) {
 			$class = 'class="adlink" ';
 		}
 
@@ -106,12 +131,25 @@ class Advertisement extends DataObject {
 		return $tag;
 	}
 
+    public function forJson() {
+        $content = strlen($this->HTMLContent) ? $this->HTMLContent : $this->forTemplate();
+        
+        $data = array(
+            'ID'    => $this->ID,
+            'Content'   => $content,
+            'Element' => $this->Element,
+            'Location'  => $this->Location
+        );
+
+        return $data;
+    }
+
 	public function SetRatioSize($width, $height) {
 		return $this->forTemplate($width, $height);
 	}
 
 	public function Link() {
-		if (self::$use_js_tracking) {
+		if (self::config()->use_js_tracking) {
 			Requirements::javascript(THIRDPARTY_DIR.'/jquery/jquery.js');
 			Requirements::javascript(THIRDPARTY_DIR.'/jquery-livequery/jquery.livequery.js');
 			Requirements::javascript('advertisements/javascript/advertisements.js');
