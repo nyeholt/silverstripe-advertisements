@@ -16,15 +16,15 @@ class AdvertisementControllerExtension extends Extension
             foreach ($ads as $ad) {
                 $items[] = $ad->forJson();
             }
+            if (count($items)) {
+                $data = array(
+                    'endpoint'  => '',
+                    'remember'   => false,
+                    'items'     => $items,
+                );
+                $data = json_encode($data);
+                Requirements::customScript('window.SSInteractives = ' . $data . ';', 'ads');
+            }
         }
-
-        $data = array(
-            'endpoint'  => '',
-            'remember'   => false,
-            'items'     => $items,
-        );
-        $data = json_encode($data);
-
-        Requirements::customScript('window.SSInteractives = ' . $data . ';', 'ads');
     }
 }
