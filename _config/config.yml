@@ -1,0 +1,6 @@
+---
+Name: routes
+---
+Director:
+  rules:
+    'interactive-action': 'AdController'
