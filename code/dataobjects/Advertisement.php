@@ -124,10 +124,10 @@ class Advertisement extends DataObject {
 
 		$class = '';
 		if (self::config()->use_js_tracking) {
-			$class = 'class="adlink" ';
+			$class = 'class="intlink" ';
 		}
 
-		$tag = '<a '.$class.' href="'.$this->Link().'" adid="'.$this->ID.'">'.$inner.'</a>';
+		$tag = '<a '.$class.' href="'.$this->Link().'" data-intid="'.$this->ID.'">'.$inner.'</a>';
 
 		return $tag;
 	}
@@ -151,6 +151,9 @@ class Advertisement extends DataObject {
 	}
 
 	public function Link() {
+        $link = Convert::raw2att($this->InternalPageID ? $this->InternalPage()->AbsoluteLink() : $this->TargetURL);
+        return $link;
+        
 		if (self::config()->use_js_tracking) {
 			Requirements::javascript(THIRDPARTY_DIR.'/jquery/jquery.js');
 			Requirements::javascript('advertisements/javascript/advertisements.js');

@@ -27,22 +27,21 @@
             }
         }
 
-        /**
-         * each time an ad link comes up, add it to the impressions
-         */
-        $(document).on('mouseup', '.adlink', function (b) {
-            var adId = $(this).attr('adid');
+        var recordClick = function (b) {
+            var adId = $(this).attr('data-intid');
             if (b.which < 3) {
                 $.post(base + 'interactive-action/clk', {id: adId});
             }
-            return true;
-        });
+            return false;
+        };
+
+        $(document).on('mouseup', 'a.int-link', recordClick);
 
         var processImpressions = function () {
-            var ads = $('.adlink');
+            var ads = $('.int-link');
             var ids = [];
             for (var i = 0, c = ads.length; i < c; i++) {
-                var adId = $(ads[i]).attr('adid');
+                var adId = $(ads[i]).attr('data-intid');
                 if (recorded[adId]) {
                     continue;
                 }
@@ -51,10 +50,12 @@
             }
 
             if (ids.length) {
-                $.post(base + 'adclick/imp', {ids: ids.join(',')});
+                $.post(base + 'interactive-action/imp', {ids: ids.join(',')});
                 setTimeout(processImpressions, 10000);
             }
         }
+        
+        processImpressions();
     });
     
     function add_interactive_item(item) {
@@ -78,6 +79,11 @@
         }
         
         var holder = $('<div class="ss-interactive-item">').hide().append(item.Content);
+        
+        holder.find('a').each(function () {
+            $(this).attr('data-intid', item.ID);
+            $(this).addClass('int-link'); 
+        })
         
         target[addFunction](holder);
         holder[effect]();
