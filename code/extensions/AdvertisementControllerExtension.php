@@ -20,10 +20,11 @@ class AdvertisementControllerExtension extends Extension
 
         $data = array(
             'endpoint'  => '',
+            'remember'   => false,
             'items'     => $items,
         );
         $data = json_encode($data);
 
-        Requirements::customScript('window.SSAds = ' . $data . ';', 'ads');
+        Requirements::customScript('window.SSInteractives = ' . $data . ';', 'ads');
     }
 }

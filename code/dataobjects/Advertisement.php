@@ -19,6 +19,7 @@ class Advertisement extends DataObject {
         'Location'          => 'Varchar(64)',   // where in its container element?
         'Frequency'         => 'Int',           // how often? 1 in X number of users see this
         'Timeout'           => 'Int',            // how long until it displays?
+        'Transition'        => 'Varchar(64)',        // how does it appear?
         'HideAfterInteraction'  => 'Boolean',   // should the item not appear if someone has interacted with it?
 	);
 
@@ -38,7 +39,7 @@ class Advertisement extends DataObject {
 		$fields = new FieldList();
 
         $locations = ['prepend' => 'Top', 'append' => 'Bottom'];
-
+        $transitions = ['show' => 'Immediate', 'fadeIn' => 'Fade In', 'slideDown' => 'Slide Down'];
         
 		$fields->push(new TabSet('Root', new Tab('Main',
 			new TextField('Title', 'Title'),
@@ -48,6 +49,7 @@ class Advertisement extends DataObject {
             DropdownField::create('Location', 'Callout location in element', $locations),
             NumericField::create('Frequency', 'Display frequency')->setRightTitle('1 in N number of people will see this'),
             NumericField::create('Timeout', 'Delay display (seconds)'),
+            DropdownField::create('Transition', 'What display effect should be used?', $transitions),
             CheckboxField::create('HideAfterInteraction'),
             DropdownField::create('CampaignID', 'Campaign', AdCampaign::get())->setEmptyString('--none--')
 		)));
@@ -137,7 +139,8 @@ class Advertisement extends DataObject {
             'ID'    => $this->ID,
             'Content'   => $content,
             'Element' => $this->Element,
-            'Location'  => $this->Location
+            'Location'  => $this->Location,
+            'Transition'    => $this->Transition,
         );
 
         return $data;
@@ -155,7 +158,7 @@ class Advertisement extends DataObject {
 			$link = Convert::raw2att($this->InternalPageID ? $this->InternalPage()->AbsoluteLink() : $this->TargetURL);
 
 		} else {
-			$link = Controller::join_links(Director::baseURL(), 'adclick/go/'.$this->ID);
+			$link = Controller::join_links(Director::baseURL(), 'interactive-action/go/'.$this->ID);
 		}
 		return $link;
 	}
