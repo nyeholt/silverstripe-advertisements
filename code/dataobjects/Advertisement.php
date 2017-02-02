@@ -1,7 +1,6 @@
 <?php
 
 /**
- * Description of Advertisement
  *
  * @author Marcus Nyeholt <marcus@silverstripe.com.au>
  * @license BSD http://silverstripe.org/BSD-license
@@ -151,7 +150,6 @@ class Advertisement extends DataObject {
 	public function Link() {
 		if (self::config()->use_js_tracking) {
 			Requirements::javascript(THIRDPARTY_DIR.'/jquery/jquery.js');
-			Requirements::javascript(THIRDPARTY_DIR.'/jquery-livequery/jquery.livequery.js');
 			Requirements::javascript('advertisements/javascript/advertisements.js');
 
 			$link = Convert::raw2att($this->InternalPageID ? $this->InternalPage()->AbsoluteLink() : $this->TargetURL);

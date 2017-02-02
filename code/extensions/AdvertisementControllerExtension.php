@@ -6,6 +6,9 @@
 class AdvertisementControllerExtension extends Extension
 {
     public function onAfterInit() {
+        Requirements::javascript(THIRDPARTY_DIR.'/jquery/jquery.js');
+        Requirements::javascript('advertisements/javascript/advertisements.js');
+
         $page = $this->owner->data();
         if ($page instanceof Page) {
             $ads = Advertisement::get()->filter(['OnPages.ID' => $page->ID]);
@@ -15,7 +18,12 @@ class AdvertisementControllerExtension extends Extension
             }
         }
 
-        $data = json_encode($items);
-        Requirements::customScript('window.adLinks = ' . $data . ';', 'ads');
+        $data = array(
+            'endpoint'  => '',
+            'items'     => $items,
+        );
+        $data = json_encode($data);
+
+        Requirements::customScript('window.SSAds = ' . $data . ';', 'ads');
     }
 }

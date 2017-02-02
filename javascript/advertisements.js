@@ -5,11 +5,6 @@
 		var base = $('base').attr('href');
 		var recorded = {};
         
-        
-			impressions.push(adId);
-
-
-
 		/**
 		 * each time an ad link comes up, add it to the impressions
 		 */
@@ -38,5 +33,7 @@
 				setTimeout(processImpressions, 10000);
 			}
 		}
+        
+        
 	});
 })(jQuery);
