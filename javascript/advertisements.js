@@ -2,9 +2,14 @@
 (function ($) {
     var config = {
         remember: false,
+        trackviews: false,
+        trackclicks: true,
+        trackforward: true,     // should target links be hooked and have a uid appended?
         items: [],
         endpoint: ''
     };
+    
+    var uuid = null;
 
     $().ready(function () {
 
@@ -17,7 +22,11 @@
         var base = $('base').attr('href');
         var recorded = {};
         
-        var uuid = current_uuid();
+        var uid = url_uuid();
+        if (uid && config.trackforward) {
+            $.post(base + 'interactive-action/trk', {ids: adId, evt: 'clk'});
+        }
+        
         
         // see if we have any items to display
         if (config.items.length) {
@@ -30,14 +39,19 @@
         var recordClick = function (b) {
             var adId = $(this).attr('data-intid');
             if (b.which < 3) {
-                $.post(base + 'interactive-action/clk', {id: adId});
+                $.post(base + 'interactive-action/trk', {ids: adId, evt: 'clk'});
             }
-            return false;
         };
 
-        $(document).on('mouseup', 'a.int-link', recordClick);
-
+        if (config.trackclicks) {
+            $(document).on('mouseup', 'a.int-link', recordClick);
+        }
+        
         var processImpressions = function () {
+            if (!config.trackviews) {
+                return;
+            }
+
             var ads = $('.int-link');
             var ids = [];
             for (var i = 0, c = ads.length; i < c; i++) {
@@ -50,7 +64,7 @@
             }
 
             if (ids.length) {
-                $.post(base + 'interactive-action/imp', {ids: ids.join(',')});
+                $.post(base + 'interactive-action/trk', {ids: ids.join(','), evt: 'imp'});
                 setTimeout(processImpressions, 10000);
             }
         }
@@ -83,6 +97,17 @@
         holder.find('a').each(function () {
             $(this).attr('data-intid', item.ID);
             $(this).addClass('int-link'); 
+            
+            if (config.trackforward) {
+                var append = 'int_src=' + current_uuid();
+                var newLink = $(this).attr('href');
+                if (newLink.indexOf('?') >= 0) {
+                    append = "&" + append;
+                } else {
+                    append = "?" + append;
+                }
+                $(this).attr('href', newLink + append);
+            }
         })
         
         target[addFunction](holder);
@@ -91,7 +116,12 @@
 
     function current_uuid() {
         // check the URL string for a continual UUID
+        if (uuid) {
+            return uuid;
+        }
+        
         var uid = null;
+        
         if (config.remember) {
             // check in a cookie
             uid = '';
@@ -99,14 +129,19 @@
         
         // check the URL string
         if (!uid) {
-            uid = get_url_param('int_src');
+            uid = url_uuid();
         }
 
         if (!uid) {
-            uid = UUID();
+            uid = UUID().generate();
         }
         
+        uuid = uid;
         return uid;
+    }
+    
+    function url_uuid() {
+        uid = get_url_param('int_src');
     }
 
 

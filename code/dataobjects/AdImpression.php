@@ -9,6 +9,7 @@ class AdImpression extends DataObject
 {
     private static $db = array(
         'Interaction' => 'Varchar(128)',
+        'Signature' => 'Varchar(128)',
         'UserAgent' => 'Varchar(128)',
         'BrowserVersion' => 'Varchar',
         'Browser' => 'Varchar',

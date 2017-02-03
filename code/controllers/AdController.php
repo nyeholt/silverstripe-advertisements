@@ -8,16 +8,45 @@
  */
 class AdController extends Controller {
 
-	public static $record_impressions = true;
+	private static $record_impressions = true;
+
+    private static $allowed_events = array(
+        'clk'   => 'Click',
+        'imp'   => 'View',
+        'int'   => 'Interact',
+        'cpl'   => 'Complete',
+    );
 
 	private static $allowed_actions = array(
+        'trk',
 		'imp',
 		'go',
 		'clk',
 	);
 
+    public function trk() {
+        $ids = $this->request->requestVar('ids');
+        
+        $event = $this->request->requestVar('evt');
+        $allowed = self::config()->allowed_events;
+        $trackAs = isset($allowed[$event]) ? $allowed[$event] : null;
+        if ($trackAs && $ids) {
+			$ids = explode(',', $this->request->requestVar('ids'));
+			foreach ($ids as $id) {
+				$id = (int) $id;
+				if ($id) {
+					$imp = AdImpression::create(['Interaction' => $trackAs]);
+					$imp->AdID = $id;
+					$imp->write();
+				}
+			}
+            return 1;
+		}
+        return 0;
+    }
+
 	public function imp() {
-		if (!self::$record_impressions) {
+		if (!self::config()->record_impressions) {
 			return;
 		}
 		if ($this->request->requestVar('ids')) {

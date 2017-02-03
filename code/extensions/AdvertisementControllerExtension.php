@@ -15,10 +15,17 @@ class AdvertisementControllerExtension extends Extension
             $items = [];
             foreach ($ads as $ad) {
                 $items[] = $ad->forJson();
+                if ($ad->ExternalCssID) {
+                    Requirements::css($ad->getUrl());
+                }
             }
+
             if (count($items)) {
                 $data = array(
                     'endpoint'  => '',
+                    'trackviews'    => false,
+                    'trackclicks'   => true,
+                    'trackforward'  => true,
                     'remember'   => false,
                     'items'     => $items,
                 );
