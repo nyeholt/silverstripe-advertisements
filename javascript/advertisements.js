@@ -6,6 +6,7 @@
         trackclicks: true,      // should clicks be 
         trackforward: true,     // should target links be hooked and have a uid appended?
         items: [],
+        tracker: 'Local',
         endpoint: ''
     };
     
@@ -18,12 +19,23 @@
         }
 
         config = window.SSInteractives;
+        if (!config.endpoint) {
+            var base = $('base').attr('href');
+            config.endpoint = base + 'interactive-action/trk';
+        }
+
+        var tracker = Trackers[config.tracker] ? Trackers[config.tracker] : Trackers.Local;
+        
+        if (!tracker) {
+            return;
+        } 
 
         var recorded = {};
         
         var uid = url_uuid();
+        console.log(config);
         if (uid && config.trackforward) {
-            $.post(base + 'interactive-action/trk', {ids: adId, evt: 'clk'});
+            tracker.track(get_url_param('int_id'), 'int');
         }
 
         // see if we have any items to display
@@ -37,7 +49,7 @@
         var recordClick = function (b) {
             var adId = $(this).attr('data-intid');
             if (b.which < 3) {
-                $.post(base + 'interactive-action/trk', {ids: adId, evt: 'clk'});
+                tracker.track(adId, 'clk');
             }
         };
 
@@ -58,7 +70,7 @@
             }
 
             if (ids.length) {
-                $.post(base + 'interactive-action/trk', {ids: ids.join(','), evt: 'imp'});
+                tracker.track(ids.join(','), 'imp');
                 setTimeout(processViews, 10000);
             }
         }
@@ -104,7 +116,7 @@
             }
 
             if (config.trackforward) {
-                var append = 'int_src=' + current_uuid();
+                var append = 'int_src=' + current_uuid() + '&int_id=' + item.ID;
                 var newLink = $(this).attr('href');
                 if (newLink.indexOf('?') >= 0) {
                     append = "&" + append;
@@ -149,19 +161,38 @@
         return get_url_param('int_src');
     }
     
-    
     var Trackers = {};
-    var base = $('base').attr('href');
+    
     
     Trackers.Google = {
-        track: function (ids, event) {
+        track: function (ids, event, uid) {
+            var category = 'Interactives';
             
+            var uid = current_uuid();
+            var action = event;
+            
+            var allIds = ids.split(',');
+            
+            for (var i = 0; i < allIds.length; i++) {
+                var label = 'id:' + allIds[i] + '|uid:' + current_uuid();
+                if (window._gaq) {
+                    window._gaq.push(['_trackEvent', category, action, label]);
+                } else if (window.ga) {
+                    ga('send', {
+                        hitType: 'event',
+                        eventCategory: category,
+                        eventAction: action,
+                        eventLabel: label
+                      });
+                }
+            }
         }
     };
     
     Trackers.Local = {
-        track: function (ids, event) {
-            $.post(base + 'interactive-action/trk', {ids: ids, evt: 'clk'});
+        track: function (ids, event, uid) {
+            var uid = current_uuid();
+            $.post(config.endpoint, {ids: ids, evt: event, sig: uid});
         }
     };
 

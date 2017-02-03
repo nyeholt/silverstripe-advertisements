@@ -26,7 +26,7 @@ class AdController extends Controller {
 
     public function trk() {
         $ids = $this->request->requestVar('ids');
-        
+        $sig = $this->request->requestVar('sig');
         $event = $this->request->requestVar('evt');
         $allowed = self::config()->allowed_events;
         $trackAs = isset($allowed[$event]) ? $allowed[$event] : null;
@@ -35,7 +35,7 @@ class AdController extends Controller {
 			foreach ($ids as $id) {
 				$id = (int) $id;
 				if ($id) {
-					$imp = AdImpression::create(['Interaction' => $trackAs]);
+					$imp = AdImpression::create(['Interaction' => $trackAs, 'Signature' => $sig]);
 					$imp->AdID = $id;
 					$imp->write();
 				}

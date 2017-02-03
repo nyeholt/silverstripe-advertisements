@@ -20,18 +20,17 @@ class AdvertisementControllerExtension extends Extension
                 }
             }
 
-            if (count($items)) {
-                $data = array(
-                    'endpoint'  => '',
-                    'trackviews'    => false,
-                    'trackclicks'   => true,
-                    'trackforward'  => true,
-                    'remember'   => false,
-                    'items'     => $items,
-                );
-                $data = json_encode($data);
-                Requirements::customScript('window.SSInteractives = ' . $data . ';', 'ads');
-            }
+            $data = array(
+                'endpoint'  => '',
+                'trackviews'    => false,
+                'trackclicks'   => true,
+                'trackforward'  => true,
+                'remember'   => false,
+                'items'     => $items,
+                'tracker'   => '',
+            );
+            $data = json_encode($data);
+            Requirements::customScript('window.SSInteractives = ' . $data . ';', 'ads');
         }
     }
 }
