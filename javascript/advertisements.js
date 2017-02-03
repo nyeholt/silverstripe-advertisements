@@ -3,7 +3,7 @@
     var config = {
         remember: false,
         trackviews: false,
-        trackclicks: true,
+        trackclicks: true,      // should clicks be 
         trackforward: true,     // should target links be hooked and have a uid appended?
         items: [],
         endpoint: ''
@@ -19,15 +19,13 @@
 
         config = window.SSInteractives;
 
-        var base = $('base').attr('href');
         var recorded = {};
         
         var uid = url_uuid();
         if (uid && config.trackforward) {
             $.post(base + 'interactive-action/trk', {ids: adId, evt: 'clk'});
         }
-        
-        
+
         // see if we have any items to display
         if (config.items.length) {
             for (var i = 0; i < config.items.length; i++) {
@@ -47,12 +45,8 @@
             $(document).on('mouseup', 'a.int-link', recordClick);
         }
         
-        var processImpressions = function () {
-            if (!config.trackviews) {
-                return;
-            }
-
-            var ads = $('.int-link');
+        var processViews = function () {
+            var ads = $('.int-track-view');
             var ids = [];
             for (var i = 0, c = ads.length; i < c; i++) {
                 var adId = $(ads[i]).attr('data-intid');
@@ -65,17 +59,25 @@
 
             if (ids.length) {
                 $.post(base + 'interactive-action/trk', {ids: ids.join(','), evt: 'imp'});
-                setTimeout(processImpressions, 10000);
+                setTimeout(processViews, 10000);
             }
         }
         
-        processImpressions();
+        processViews();
     });
     
     function add_interactive_item(item) {
         var target;
         var addFunction = 'prepend';
         var effect = 'show';
+        
+        if (item.Frequency > 0) {
+            var rand = Math.floor(Math.random() * (item.Frequency)) + 1;
+            if (rand != 1) {
+                // k good to go
+                return;
+            }
+        }
         
         if (item.Element) {
             target = $(item.Element);
@@ -97,7 +99,10 @@
         holder.find('a').each(function () {
             $(this).attr('data-intid', item.ID);
             $(this).addClass('int-link'); 
-            
+            if (item.TrackViews) {
+                $(this).addClass('int-track-view');
+            }
+
             if (config.trackforward) {
                 var append = 'int_src=' + current_uuid();
                 var newLink = $(this).attr('href');
@@ -141,8 +146,24 @@
     }
     
     function url_uuid() {
-        uid = get_url_param('int_src');
+        return get_url_param('int_src');
     }
+    
+    
+    var Trackers = {};
+    var base = $('base').attr('href');
+    
+    Trackers.Google = {
+        track: function (ids, event) {
+            
+        }
+    };
+    
+    Trackers.Local = {
+        track: function (ids, event) {
+            $.post(base + 'interactive-action/trk', {ids: ids, evt: 'clk'});
+        }
+    };
 
 
     /**
@@ -215,4 +236,6 @@
             }
         }
     };
+    
+    
 })(jQuery);

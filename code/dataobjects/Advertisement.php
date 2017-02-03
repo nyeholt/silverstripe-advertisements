@@ -21,6 +21,7 @@ class Advertisement extends DataObject {
         'Timeout'           => 'Int',            // how long until it displays?
         'Transition'        => 'Varchar(64)',        // how does it appear?
         'HideAfterInteraction'  => 'Boolean',   // should the item not appear if someone has interacted with it?
+        'TrackViews'        => 'Varchar(16)',
 	);
 
 	private static $has_one = array(
@@ -53,6 +54,14 @@ class Advertisement extends DataObject {
             CheckboxField::create('HideAfterInteraction'),
             DropdownField::create('CampaignID', 'Campaign', AdCampaign::get())->setEmptyString('--none--')
 		)));
+
+        if (Permission::check('ADMIN')) {
+            $fields->addFieldToTab(
+                'Root.Main', 
+                DropdownField::create('TrackViews', 'Should views be tracked?', array('' => 'Default', 'yes' => 'Yes', 'no' => 'No')),
+                'CampaignID'
+            );
+        }
 
 		if ($this->ID) {
 			$impressions = $this->getImpressions();
@@ -141,6 +150,9 @@ class Advertisement extends DataObject {
             'Element' => $this->Element,
             'Location'  => $this->Location,
             'Transition'    => $this->Transition,
+            'Frequency' => $this->Frequency,
+            'HideAfterInteraction'  => $this->HideAfterInteraction,
+            'TrackViews'    => strlen($this->TrackViews) ? $this->TrackViews == 'yes' : self::config()->view_tracking,
         );
 
         return $data;
