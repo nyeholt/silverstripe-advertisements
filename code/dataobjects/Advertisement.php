@@ -95,6 +95,31 @@ class Advertisement extends DataObject {
 		return $fields;
 	}
 
+    /**
+     * Can this interactive be viewed on the given URL ?
+     *
+     * @param string $url
+     */
+    public function viewableOn($url, $pageType = null) {
+        $excludeUrls = $this->ExcludeUrls->getValues();
+
+        if ($excludeUrls && count($excludeUrls)) {
+            foreach ($excludeUrls as $urlPattern) {
+                if (preg_match("{" . $urlPattern . "}", $url)) {
+                    return false;
+                }
+            }
+        }
+
+        $excludeTypes = $this->ExcludeTypes->getValues();
+
+        if ($pageType && $excludeTypes && count($excludeTypes) && in_array($pageType, $excludeTypes)) {
+            return false;
+        }
+        
+        return true;
+    }
+
 	protected $impressions;
 
 	public function getImpressions() {

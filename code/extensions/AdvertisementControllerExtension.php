@@ -9,6 +9,8 @@ class AdvertisementControllerExtension extends Extension
         Requirements::javascript(THIRDPARTY_DIR.'/jquery/jquery.js');
         Requirements::javascript('advertisements/javascript/advertisements.js');
 
+        $url = $this->owner->getRequest()->getURL();
+
         $siteWide = Advertisement::get()->filter(['SiteWide' => 1]);
         
         $page = $this->owner->data();
@@ -20,6 +22,10 @@ class AdvertisementControllerExtension extends Extension
         
         $items = [];
         foreach ($ads as $ad) {
+            if (!$ad->viewableOn($url, $page ? $page->class : null)) {
+                continue;
+            }
+
             $items[] = $ad->forJson();
             if ($ad->ExternalCssID) {
                 Requirements::css($ad->getUrl());
