@@ -11,6 +11,8 @@
     };
     
     var uuid = null;
+    
+    var allowed_add_actions = ['prepend', 'append', 'before', 'after'];
 
     $().ready(function () {
 
@@ -33,7 +35,6 @@
         var recorded = {};
         
         var uid = url_uuid();
-        console.log(config);
         if (uid && config.trackforward) {
             tracker.track(get_url_param('int_id'), 'int');
         }
@@ -50,6 +51,12 @@
             var adId = $(this).attr('data-intid');
             if (b.which < 3) {
                 tracker.track(adId, 'clk');
+            }
+            
+            if ($(this).hasClass('hide-on-interact')) {
+                var blocked = get_cookie('interacted');
+                blocked += '|' + adId;
+                set_cookie('interacted', blocked);
             }
         };
 
@@ -81,7 +88,16 @@
     function add_interactive_item(item) {
         var target;
         var addFunction = 'prepend';
+        
         var effect = 'show';
+        
+        var hidden = get_cookie('interacted');
+        if (hidden && hidden.length) {
+            hidden = hidden.split('|');
+            if (hidden.indexOf("" + item.ID) >= 0 && item.HideAfterInteraction) {
+                return;
+            }
+        }
         
         if (item.Frequency > 0) {
             var rand = Math.floor(Math.random() * (item.Frequency)) + 1;
@@ -99,7 +115,8 @@
         }
         
         if (item.Location != 'prepend') {
-            addFunction = item.Location === 'append' ? 'append' : 'prepend';
+            var canUse = allowed_add_actions.indexOf(item.Location);
+            addFunction = canUse >= 0 ? item.Location : 'prepend';
         }
         
         if (item.Transition && item.Transition != 'show') {
@@ -125,7 +142,11 @@
                 }
                 $(this).attr('href', newLink + append);
             }
-        })
+            
+            if (item.HideAfterInteraction) {
+                $(this).addClass('hide-on-interact');
+            }
+        });
         
         target[addFunction](holder);
         holder[effect]();

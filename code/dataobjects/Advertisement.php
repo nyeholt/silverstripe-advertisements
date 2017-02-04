@@ -22,6 +22,10 @@ class Advertisement extends DataObject {
         'Transition'        => 'Varchar(64)',        // how does it appear?
         'HideAfterInteraction'  => 'Boolean',   // should the item not appear if someone has interacted with it?
         'TrackViews'        => 'Varchar(16)',
+
+        'SiteWide'          => 'Boolean',
+        'ExcludeUrls'       => 'MultiValueField',
+        'ExcludeTypes'      => 'MultiValueField',
 	);
 
 	private static $has_one = array(
@@ -39,15 +43,15 @@ class Advertisement extends DataObject {
 	public function getCMSFields() {
 		$fields = new FieldList();
 
-        $locations = ['prepend' => 'Top', 'append' => 'Bottom'];
+        $locations = ['prepend' => 'Top', 'append' => 'Bottom', 'before' => 'Before', 'after' => 'After',];
         $transitions = ['show' => 'Immediate', 'fadeIn' => 'Fade In', 'slideDown' => 'Slide Down'];
         
 		$fields->push(new TabSet('Root', new Tab('Main',
 			new TextField('Title', 'Title'),
 			TextField::create('TargetURL', 'Target URL')->setRightTitle('Or select a page below'),
             new Treedropdownfield('InternalPageID', 'Internal Page Link', 'Page'),
-            TextField::create('Element', 'Within Element')->setRightTitle('CSS selector for element to display within'),
-            DropdownField::create('Location', 'Callout location in element', $locations),
+            TextField::create('Element', 'Relative Element')->setRightTitle('CSS selector for element to appear with'),
+            DropdownField::create('Location', 'Location in / near element', $locations),
             NumericField::create('Frequency', 'Display frequency')->setRightTitle('1 in N number of people will see this'),
             NumericField::create('Timeout', 'Delay display (seconds)'),
             DropdownField::create('Transition', 'What display effect should be used?', $transitions),
@@ -70,7 +74,16 @@ class Advertisement extends DataObject {
 			$fields->addFieldToTab('Root.Main', new ReadonlyField('Impressions', 'Impressions', $impressions), 'Title');
 			$fields->addFieldToTab('Root.Main', new ReadonlyField('Clicks', 'Clicks', $clicks), 'Title');
 
-            $fields->addFieldToTab('Root.Main', TreeMultiselectField::create('OnPages', 'Display on pages', 'Page'), 'Element');
+            $classes = SiteTree::page_type_classes();
+            $classes = array_combine($classes,$classes);
+            $fields->addFieldsToTab('Root.SiteOptions', [
+                CheckboxField::create('SiteWide', 'All pages in site'),
+                TreeMultiselectField::create('OnPages', 'Display on pages', 'Page'),
+                ToggleCompositeField::create('ExclusionRules', 'Excluding', [
+                    MultiValueTextField::create('ExcludeUrls', 'Exluding URLs that match'),
+                    MultiValueDropdownField::create('ExcludeTypes', 'Excluding page types', $classes)
+                ]),
+            ]);
 
             $fields->addFieldsToTab('Root.Content', array(
                 new UploadField('Image'),
