@@ -13,8 +13,13 @@
     var uuid = null;
     
     var allowed_add_actions = ['prepend', 'append', 'before', 'after'];
+    
+    var current_id = get_url_param('int_id');
+    
+    var tracker;
 
     $().ready(function () {
+        
 
         if (!window.SSInteractives) {
             return;
@@ -26,7 +31,7 @@
             config.endpoint = base + 'interactive-action/trk';
         }
 
-        var tracker = Trackers[config.tracker] ? Trackers[config.tracker] : Trackers.Local;
+        tracker = Trackers[config.tracker] ? Trackers[config.tracker] : Trackers.Local;
         
         if (!tracker) {
             return;
@@ -36,7 +41,7 @@
         
         var uid = url_uuid();
         if (uid && config.trackforward) {
-            tracker.track(get_url_param('int_id'), 'int');
+            tracker.track(current_id, 'int');
         }
 
         // see if we have any items to display
@@ -90,6 +95,16 @@
         var addFunction = 'prepend';
         
         var effect = 'show';
+        
+        if (current_id && current_id == item.ID) {
+            // bind a handler for the 'completion' element, but we don't display anything
+            if (item.CompletionElement) {
+                $(document).on('mouseup', item.CompletionElement, function () {
+                    tracker.track(item.ID, 'cpl', current_uuid());
+                });
+            }
+            return;
+        }
         
         var hidden = get_cookie('interacted');
         if (hidden && hidden.length) {

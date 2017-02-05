@@ -23,6 +23,8 @@ class Advertisement extends DataObject {
         'HideAfterInteraction'  => 'Boolean',   // should the item not appear if someone has interacted with it?
         'TrackViews'        => 'Varchar(16)',
 
+        'CompletionElement'   => 'Varchar(64)',       // what element needs clicking to be considered a 'complete' event
+
         'SiteWide'          => 'Boolean',
         'ExcludeUrls'       => 'MultiValueField',
         'ExcludeTypes'      => 'MultiValueField',
@@ -55,6 +57,9 @@ class Advertisement extends DataObject {
             NumericField::create('Frequency', 'Display frequency')->setRightTitle('1 in N number of people will see this'),
             NumericField::create('Timeout', 'Delay display (seconds)'),
             DropdownField::create('Transition', 'What display effect should be used?', $transitions),
+            TextField::create('CompletionElement', 'Completion Element(s)')
+                ->setRightTitle('CSS selector for element(s) that are considered the "completion" clicks'),
+
             CheckboxField::create('HideAfterInteraction'),
             DropdownField::create('CampaignID', 'Campaign', AdCampaign::get())->setEmptyString('--none--')
 		)));
@@ -190,6 +195,7 @@ class Advertisement extends DataObject {
             'Transition'    => $this->Transition,
             'Frequency' => $this->Frequency,
             'HideAfterInteraction'  => $this->HideAfterInteraction,
+            'CompletionElement'       => $this->CompletionElement,
             'TrackViews'    => strlen($this->TrackViews) ? $this->TrackViews == 'yes' : self::config()->view_tracking,
         );
 
