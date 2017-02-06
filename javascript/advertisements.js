@@ -1,7 +1,7 @@
 
 (function ($) {
     var config = {
-        remember: false,
+        remember: false,         // remember the user through requests
         trackviews: false,
         trackclicks: true,      // should clicks be 
         trackforward: true,     // should target links be hooked and have a uid appended?
@@ -18,6 +18,8 @@
     
     var tracker;
 
+    var Trackers = {};
+    
     $().ready(function () {
         
 
@@ -25,7 +27,7 @@
             return;
         }
 
-        config = window.SSInteractives;
+        config = window.SSInteractives.config;
         if (!config.endpoint) {
             var base = $('base').attr('href');
             config.endpoint = base + 'interactive-action/trk';
@@ -35,11 +37,17 @@
         
         if (!tracker) {
             return;
-        } 
+        }
+        
+        // bind globally available API endpoints now
+        window.SSInteractives.addInteractiveItem = add_interactive_item;
+        window.SSInteractives.track = tracker.track;
 
         var recorded = {};
         
         var uid = url_uuid();
+        
+        // record that a page was loaded because of an interaction with a previous interactive
         if (uid && config.trackforward) {
             tracker.track(current_id, 'int');
         }
@@ -90,6 +98,15 @@
         processViews();
     });
     
+    /**
+     * Adds a new interactive item into the page
+     * 
+     * Takes into account the location to be added, and any 
+     * handlers that need binding on contained 'a' elements. 
+     * 
+     * @param {type} item
+     * @returns {undefined}
+     */
     function add_interactive_item(item) {
         var target;
         var addFunction = 'prepend';
@@ -163,7 +180,9 @@
             }
         });
         
+        // Add the item using the appropriate location
         target[addFunction](holder);
+        // and effect
         holder[effect]();
     };
 
@@ -177,9 +196,9 @@
         
         if (config.remember) {
             // check in a cookie
-            uid = '';
+            uid = get_cookie('int_uuid');
         }
-        
+
         // check the URL string
         if (!uid) {
             uid = url_uuid();
@@ -187,6 +206,7 @@
 
         if (!uid) {
             uid = UUID().generate();
+            set_cookie('int_uuid', uid);
         }
         
         uuid = uid;
@@ -196,9 +216,6 @@
     function url_uuid() {
         return get_url_param('int_src');
     }
-    
-    var Trackers = {};
-    
     
     Trackers.Google = {
         track: function (ids, event, uid) {
@@ -259,6 +276,7 @@
     };
 
 
+    //<editor-fold defaultstate="collapsed" desc="Cookie management">
     function set_cookie(name, value, days) {
         var expires = "";
         if (!days) {
@@ -271,7 +289,7 @@
         }
         document.cookie = name + "=" + value + expires + "; path=/";
     }
-
+    
     function get_cookie(name) {
         var nameEQ = name + "=";
         var ca = document.cookie.split(';');
@@ -284,10 +302,11 @@
         }
         return null;
     }
-
+    
     function clear_cookie(name) {
         set_cookie(name, "", -1);
     }
+    //</editor-fold>
 
     function get_url_param(sParam) {
         var sPageURL = decodeURIComponent(window.location.search.substring(1)),

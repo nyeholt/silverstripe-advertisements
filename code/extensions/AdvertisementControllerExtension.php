@@ -42,6 +42,6 @@ class AdvertisementControllerExtension extends Extension
             'tracker'   => '',
         );
         $data = json_encode($data);
-        Requirements::customScript('window.SSInteractives = ' . $data . ';', 'ads');
+        Requirements::customScript('window.SSInteractives = {config: ' . $data . '};', 'ads');
     }
 }
