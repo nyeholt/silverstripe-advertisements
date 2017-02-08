@@ -11,25 +11,28 @@ class InteractiveControllerExtension extends Extension
 
         $url = $this->owner->getRequest()->getURL();
 
-        $siteWide = Interactive::get()->filter(['SiteWide' => 1]);
+        $siteWide = InteractiveCampaign::get()->filter(['SiteWide' => 1]);
         
         $page = $this->owner->data();
         if ($page instanceof Page) {
-            $pageAds = Interactive::get()->filterAny(['OnPages.ID' => $page->ID]);
+            $pageCampaigns = InteractiveCampaign::get()->filterAny(['OnPages.ID' => $page->ID]);
         }
 
-        $ads = array_merge($siteWide->toArray(), $pageAds->toArray());
-        
+        $campaigns = array_merge($siteWide->toArray(), $pageCampaigns->toArray());
+
         $items = [];
-        foreach ($ads as $ad) {
-            if (!$ad->viewableOn($url, $page ? $page->class : null)) {
+        foreach ($campaigns as $campaign) {
+            // collect its interactives.
+            if (!$campaign->viewableOn($url, $page ? $page->class : null)) {
                 continue;
             }
 
-            $items[] = $ad->forJson();
-            if ($ad->ExternalCssID) {
-                Requirements::css($ad->getUrl());
-            }
+            $interactives = $campaign->relevantInteractives($url, $page);
+            $items[] = array(
+                'interactives' => $interactives,
+                'display'       => $campaign->DisplayType,
+                'id'            => $campaign->ID,
+            );
         }
 
         $data = array(
@@ -37,9 +40,9 @@ class InteractiveControllerExtension extends Extension
             'trackviews'    => false,
             'trackclicks'   => true,
             'trackforward'  => true,
-            'remember'   => false,
-            'items'     => $items,
-            'tracker'   => '',
+            'remember'      => false,
+            'campaigns'     => $items,
+            'tracker'       => '',
         );
         $data = json_encode($data);
         Requirements::customScript('window.SSInteractives = {config: ' . $data . '};', 'ads');

@@ -6,18 +6,63 @@
  * @license BSD http://silverstripe.org/BSD-license
  */
 class InteractiveCampaign extends DataObject {
-	public static $db = array(
+	private static $db = array(
 		'Title'				=> 'Varchar',
-		'Expires'			=> 'Date'
+        'Begins'            => 'Date',
+		'Expires'			=> 'Date',
+
+        'DisplayType'       => 'Varchar(64)',
 	);
 
-	public static $has_many = array(
+	private static $has_many = array(
 		'Interactives'		=> 'Interactive',
 	);
 
-	public static $has_one = array(
+	private static $has_one = array(
 		'Client'			=> 'InteractiveClient',
 	);
+
+    private static $extensions = array(
+        'InteractiveLocationExtension',
+    );
+
+    public function getCMSFields()
+    {
+        $fields = parent::getCMSFields();
+
+        $options = array(
+            'random' => 'Always Random',
+            'stickyrandom'  => 'Sticky Random',
+            'all' => 'All',
+        );
+
+        $fields->replaceField('DisplayType', $df = DropdownField::create('DisplayType', 'Use items as', $options));
+        $df->setRightTitle("Should one random item of this list be displayed, or all of them at once? A 'Sticky' item is randomly chosen, but then always shown to the same user");
+
+        return $fields;
+    }
+
+    /**
+     * Collect a list of interactives that are relevant for the passed in URL
+     * and viewed page
+     *
+     * @param string $url
+     * @param SiteTree $page
+     */
+    public function relevantInteractives($url, $page = null) {
+        $items = [];
+        foreach ($this->Interactives() as $ad) {
+            if (!$ad->viewableOn($url, $page ? $page->class : null)) {
+                continue;
+            }
+
+            $items[] = $ad->forJson();
+            if ($ad->ExternalCssID) {
+                Requirements::css($ad->getUrl());
+            }
+        }
+        return $items;
+    }
 
 	public function getRandomAd() {
 		$number = $this->Interactives()->count();

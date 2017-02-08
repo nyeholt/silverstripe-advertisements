@@ -6,7 +6,7 @@
  */
 class InteractiveAdmin extends ModelAdmin {
 	private static $managed_models = array(
-		'Interactive',
+//		'Interactive',
 		'InteractiveCampaign',
 		'InteractiveClient',
 	);

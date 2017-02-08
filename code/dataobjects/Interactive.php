@@ -25,9 +25,6 @@ class Interactive extends DataObject {
 
         'CompletionElement'   => 'Varchar(64)',         // what element needs clicking to be considered a 'complete' event
 
-        'SiteWide'          => 'Boolean',
-        'ExcludeUrls'       => 'MultiValueField',
-        'ExcludeTypes'      => 'MultiValueField',
 	);
 
 	private static $has_one = array(
@@ -36,11 +33,11 @@ class Interactive extends DataObject {
 		'Image'				=> 'Image',
 	);
 
-    private static $many_many = array(
-        'OnPages'       => 'SiteTree',
+    private static $extensions = array(
+        'InteractiveLocationExtension',
     );
 
-	private static $summary_fields = array('Title');
+    private static $summary_fields = array('Title');
 
 	public function getCMSFields() {
 		$fields = new FieldList();
@@ -79,17 +76,6 @@ class Interactive extends DataObject {
 			$fields->addFieldToTab('Root.Main', new ReadonlyField('Impressions', 'Impressions', $impressions), 'Title');
 			$fields->addFieldToTab('Root.Main', new ReadonlyField('Clicks', 'Clicks', $clicks), 'Title');
 
-            $classes = SiteTree::page_type_classes();
-            $classes = array_combine($classes,$classes);
-            $fields->addFieldsToTab('Root.SiteOptions', [
-                CheckboxField::create('SiteWide', 'All pages in site'),
-                TreeMultiselectField::create('OnPages', 'Display on pages', 'Page'),
-                ToggleCompositeField::create('ExclusionRules', 'Excluding', [
-                    MultiValueTextField::create('ExcludeUrls', 'Exluding URLs that match'),
-                    MultiValueDropdownField::create('ExcludeTypes', 'Excluding page types', $classes)
-                ]),
-            ]);
-
             $fields->addFieldsToTab('Root.Content', array(
                 new UploadField('Image'),
                 new TextareaField('HTMLContent')
@@ -99,31 +85,6 @@ class Interactive extends DataObject {
         Versioned::reading_stage('Stage');
 		return $fields;
 	}
-
-    /**
-     * Can this interactive be viewed on the given URL ?
-     *
-     * @param string $url
-     */
-    public function viewableOn($url, $pageType = null) {
-        $excludeUrls = $this->ExcludeUrls->getValues();
-
-        if ($excludeUrls && count($excludeUrls)) {
-            foreach ($excludeUrls as $urlPattern) {
-                if (preg_match("{" . $urlPattern . "}", $url)) {
-                    return false;
-                }
-            }
-        }
-
-        $excludeTypes = $this->ExcludeTypes->getValues();
-
-        if ($pageType && $excludeTypes && count($excludeTypes) && in_array($pageType, $excludeTypes)) {
-            return false;
-        }
-        
-        return true;
-    }
 
 	protected $impressions;
 

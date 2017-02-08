@@ -7,7 +7,8 @@
         trackforward: true,     // should target links be hooked and have a uid appended?
         items: [],
         tracker: 'Local',
-        endpoint: ''
+        endpoint: '',
+        cookieprefix: 'int_'
     };
     
     var uuid = null;
@@ -26,8 +27,11 @@
         if (!window.SSInteractives) {
             return;
         }
+        
+        for (var property in window.SSInteractives.config) {
+            config[property] = window.SSInteractives.config[property];
+        }
 
-        config = window.SSInteractives.config;
         if (!config.endpoint) {
             var base = $('base').attr('href');
             config.endpoint = base + 'interactive-action/trk';
@@ -53,13 +57,12 @@
         }
 
         // see if we have any items to display
-        if (config.items.length) {
-            for (var i = 0; i < config.items.length; i++) {
-                var item = config.items[i];
-                add_interactive_item(item);
+        if (config.campaigns.length) {
+            for (var j = 0; j < config.campaigns.length; j++) {
+                add_campaign(config.campaigns[j]);
             }
         }
-
+        
         var recordClick = function (b) {
             var adId = $(this).attr('data-intid');
             if (b.which < 3) {
@@ -91,12 +94,64 @@
 
             if (ids.length) {
                 tracker.track(ids.join(','), 'imp');
-                setTimeout(processViews, 10000);
             }
+            setTimeout(processViews, 3000);
         }
         
         processViews();
     });
+    
+    /**
+     * Add a whole campaign to the page. 
+     * @param object campaign
+     * @returns 
+     */
+    function add_campaign(campaign) {
+        if (campaign.interactives.length) {
+            var cookie_name = 'cmp_' + campaign.id;
+            // see what type; if it's all, or just a specific ID to show
+            var showId = 0;
+            var showIndex = 0;
+            var item = null;
+            
+            if (campaign.display == 'stickyrandom') {
+                // if we already have a specific ID in a cookie, we need to use that
+                var savedId = get_cookie(cookie_name);
+                if (savedId) {
+                    showId = savedId;
+                } else {
+                    // okay, get a new random
+                    
+                }
+            }
+            
+            // now check for random / stickyrandom if needbe
+            if (!showId && campaign.display !== 'all') {
+                showIndex = Math.floor(Math.random() * (campaign.interactives.length));
+                
+                item = campaign.interactives[showIndex];
+                // if it's sticky, we need to save a cookie
+                if (campaign.display == 'stickyrandom') {
+                    set_cookie(cookie_name, item.ID);
+                }
+
+                return add_interactive_item(item);
+            }
+            
+            
+            for (var i = 0; i < campaign.interactives.length; i++) {
+                item = campaign.interactives[i];
+                // if we're looking for a particular ID
+                if (showId) {
+                    if (item.ID == showId) {
+                        return add_interactive_item(item);
+                    }
+                } else {
+                    add_interactive_item(item);
+                }
+            }
+        }
+    }
     
     /**
      * Adds a new interactive item into the page
@@ -180,12 +235,14 @@
             }
         });
         
-        // Add the item using the appropriate location
-        target[addFunction](holder);
-        // and effect
+        
+        
         var timeout = item.Delay ? item.Delay : 0;
         
         setTimeout(function () {
+            // Add the item using the appropriate location
+            target[addFunction](holder);
+            // and effect for showing
             holder[effect]();
         }, timeout);
     };
@@ -200,7 +257,7 @@
         
         if (config.remember) {
             // check in a cookie
-            uid = get_cookie('int_uuid');
+            uid = get_cookie('uuid');
         }
 
         // check the URL string
@@ -210,7 +267,7 @@
 
         if (!uid) {
             uid = UUID().generate();
-            set_cookie('int_uuid', uid);
+            set_cookie('uuid', uid);
         }
         
         uuid = uid;
@@ -291,10 +348,12 @@
             date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
             expires = "; expires=" + date.toUTCString();
         }
+        name = config.cookieprefix + name;
         document.cookie = name + "=" + value + expires + "; path=/";
     }
     
     function get_cookie(name) {
+        name = config.cookieprefix + name;
         var nameEQ = name + "=";
         var ca = document.cookie.split(';');
         for (var i = 0; i < ca.length; i++) {
