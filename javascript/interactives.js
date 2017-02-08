@@ -183,7 +183,11 @@
         // Add the item using the appropriate location
         target[addFunction](holder);
         // and effect
-        holder[effect]();
+        var timeout = item.Delay ? item.Delay : 0;
+        
+        setTimeout(function () {
+            holder[effect]();
+        }, timeout);
     };
 
     function current_uuid() {

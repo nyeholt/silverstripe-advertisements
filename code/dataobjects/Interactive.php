@@ -18,7 +18,7 @@ class Interactive extends DataObject {
         'Element'           => 'Varchar(64)',           // within which containing element will it display?
         'Location'          => 'Varchar(64)',           // where in its container element?
         'Frequency'         => 'Int',                   // how often? 1 in X number of users see this
-        'Timeout'           => 'Int',                   // how long until it displays?
+        'Delay'             => 'Int',                   // how long until it displays?
         'Transition'        => 'Varchar(64)',           // how does it appear?
         'HideAfterInteraction'  => 'Boolean',           // should the item not appear if someone has interacted with it?
         'TrackViews'        => 'Varchar(16)',
@@ -55,7 +55,7 @@ class Interactive extends DataObject {
             TextField::create('Element', 'Relative Element')->setRightTitle('CSS selector for element to appear with'),
             DropdownField::create('Location', 'Location in / near element', $locations),
             NumericField::create('Frequency', 'Display frequency')->setRightTitle('1 in N number of people will see this'),
-            NumericField::create('Timeout', 'Delay display (seconds)'),
+            NumericField::create('Delay', 'Delay display (milliseconds)'),
             DropdownField::create('Transition', 'What display effect should be used?', $transitions),
             TextField::create('CompletionElement', 'Completion Element(s)')
                 ->setRightTitle('CSS selector for element(s) that are considered the "completion" clicks'),
@@ -194,6 +194,7 @@ class Interactive extends DataObject {
             'Location'  => $this->Location,
             'Transition'    => $this->Transition,
             'Frequency' => $this->Frequency,
+            'Delay'   => $this->Delay,
             'HideAfterInteraction'  => $this->HideAfterInteraction,
             'CompletionElement'       => $this->CompletionElement,
             'TrackViews'    => strlen($this->TrackViews) ? $this->TrackViews == 'yes' : self::config()->view_tracking,
