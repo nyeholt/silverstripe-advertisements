@@ -1,12 +1,10 @@
 <?php
 
 /**
- * Description of AdvertisementExtension
- *
  * @author Marcus Nyeholt <marcus@silverstripe.com.au>
  * @license BSD http://silverstripe.org/BSD-license
  */
-class AdvertisementExtension extends DataExtension {
+class InteractiveExtension extends DataExtension {
 	private static $db = array(
 		'UseRandom'			=> 'Boolean',
 		'NumberOfAds'		=> 'Int',
@@ -18,27 +16,27 @@ class AdvertisementExtension extends DataExtension {
 	);
 
 	private static $many_many = array(
-		'Advertisements'			=> 'Advertisement',
+		'Interactives'			=> 'Interactive',
 	);
 
 	private static $has_one = array(
-		'UseCampaign'				=> 'AdCampaign',
+		'UseCampaign'				=> 'InteractiveCampaign',
 	);
 
 	public function updateSettingsFields(FieldList $fields) {
-		$fields->addFieldToTab('Root.Advertisements', new CheckboxField('InheritSettings', _t('Advertisements.INHERIT', 'Inherit parent settings')));
-//		$fields->addFieldToTab('Root.Advertisements', new CheckboxField('UseRandom', _t('Advertisements.USE_RANDOM', 'Use random selection')));
-		$fields->addFieldToTab('Root.Advertisements', new NumericField('NumberOfAds', _t('Advertisements.NUM_ADS', 'How many Ads should be returned?')));
+		$fields->addFieldToTab('Root.Interactives', new CheckboxField('InheritSettings', _t('Interactives.INHERIT', 'Inherit parent settings')));
+//		$fields->addFieldToTab('Root.Interactive', new CheckboxField('UseRandom', _t('Advertisements.USE_RANDOM', 'Use random selection')));
+		$fields->addFieldToTab('Root.Interactive', new NumericField('NumberOfAds', _t('Interactives.NUM_ADS', 'How many Ads should be returned?')));
 
-		$gf = GridField::create('Advertisements', 'Advertisements', $this->owner->Advertisements(), GridFieldConfig_RelationEditor::create());
+		$gf = GridField::create('Interactives', 'Interactives', $this->owner->Interactives(), GridFieldConfig_RelationEditor::create());
 
-		$fields->addFieldToTab('Root.Advertisements', $gf);
+		$fields->addFieldToTab('Root.Interactive', $gf);
 //		$fields->addFieldToTab('Root.Advertisements', new ManyManyPickerField($this->owner, 'Advertisements'));
-		$fields->addFieldToTab('Root.Advertisements', $df = new DropdownField('UseCampaignID', 'Use campaign', AdCampaign::get()->map()));
+		$fields->addFieldToTab('Root.Interactive', $df = new DropdownField('UseCampaignID', 'Use campaign', InteractiveCampaign::get()->map()));
 		$df->setEmptyString('-- OR Select campaign --');
 	}
 
-	public function AdList() {
+	public function InteractiveList() {
 		$toUse = $this->owner;
 		if ($this->owner->InheritSettings) {
 			while($toUse->ParentID) {
@@ -56,7 +54,7 @@ class AdvertisementExtension extends DataExtension {
 			$toUse = $toUse->UseCampaign();
 		}
 
-		$ads = $toUse->Advertisements();
+		$ads = $toUse->Interactives();
 		if ($this->owner->NumberOfAds) {
 			$ads = $ads->limit($this->owner->NumberOfAds);
 		}
@@ -64,8 +62,8 @@ class AdvertisementExtension extends DataExtension {
 		return $ads;
 	}
 
-	public function findAd($name) {
-		$ad = Advertisement::get()->filter('Title', $name)->first();
+	public function findInteractive($name) {
+		$ad = Interactive::get()->filter('Title', $name)->first();
 		return $ad;
 	}
 }

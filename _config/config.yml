@@ -3,4 +3,4 @@ Name: routes
 ---
 Director:
   rules:
-    'interactive-action': 'AdController'
+    'interactive-action': 'InteractiveController'

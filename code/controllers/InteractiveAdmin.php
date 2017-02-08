@@ -1,20 +1,18 @@
 <?php
 
 /**
- * Description of AdAdmin
- *
  * @author Marcus Nyeholt <marcus@silverstripe.com.au>
  * @license BSD http://silverstripe.org/BSD-license
  */
-class AdAdmin extends ModelAdmin {
+class InteractiveAdmin extends ModelAdmin {
 	private static $managed_models = array(
-		'Advertisement',
-		'AdCampaign',
-		'AdClient',
+		'Interactive',
+		'InteractiveCampaign',
+		'InteractiveClient',
 	);
 
-	private static $url_segment = 'advertisements';
-	private static $menu_title = 'Ads';
+	private static $url_segment = 'interactives';
+	private static $menu_title = 'Interactives';
 }
 
 /*

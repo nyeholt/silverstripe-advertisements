@@ -1,12 +1,10 @@
 <?php
 
 /**
- * Description of AdController
- *
  * @author Marcus Nyeholt <marcus@silverstripe.com.au>
  * @license BSD http://silverstripe.org/BSD-license
  */
-class AdController extends Controller {
+class InteractiveController extends Controller {
 
 	private static $record_impressions = true;
 
@@ -35,8 +33,8 @@ class AdController extends Controller {
 			foreach ($ids as $id) {
 				$id = (int) $id;
 				if ($id) {
-					$imp = AdImpression::create(['Interaction' => $trackAs, 'Signature' => $sig]);
-					$imp->AdID = $id;
+					$imp = InteractiveImpression::create(['Interaction' => $trackAs, 'Signature' => $sig]);
+					$imp->InteractiveID = $id;
 					$imp->write();
 				}
 			}
@@ -54,8 +52,8 @@ class AdController extends Controller {
 			foreach ($ids as $id) {
 				$id = (int) $id;
 				if ($id) {
-					$imp = new AdImpression;
-					$imp->AdID = $id;
+					$imp = new InteractiveImpression;
+					$imp->InteractiveID = $id;
 					$imp->write();
 				}
 			}
@@ -66,8 +64,8 @@ class AdController extends Controller {
 		if ($this->request->requestVar('id')) {
 			$id = (int) $this->request->requestVar('id');
 			if ($id) {
-				$imp = AdImpression::create(['Interaction' => 'Click']);
-				$imp->AdID = $id;
+				$imp = InteractiveImpression::create(['Interaction' => 'Click']);
+				$imp->InteractiveID = $id;
 				$imp->write();
 			}
 		}
@@ -77,10 +75,10 @@ class AdController extends Controller {
 		$id = (int) $this->request->param('ID');
 
 		if ($id) {
-			$ad = DataObject::get_by_id('Advertisement', $id);
+			$ad = DataObject::get_by_id('Interactive', $id);
 			if ($ad && $ad->exists()) {
-				$imp = AdImpression::create(['Interaction' => 'Click']);
-				$imp->AdID = $id;
+				$imp = InteractiveImpression::create(['Interaction' => 'Click']);
+				$imp->InteractiveID = $id;
 				$imp->write();
 
 				$this->redirect($ad->getTarget());

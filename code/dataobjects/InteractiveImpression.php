@@ -5,7 +5,7 @@
  * @author Marcus Nyeholt <marcus@silverstripe.com.au>
  * @license BSD http://silverstripe.org/BSD-license
  */
-class AdImpression extends DataObject
+class InteractiveImpression extends DataObject
 {
     private static $db = array(
         'Interaction' => 'Varchar(128)',
@@ -24,7 +24,7 @@ class AdImpression extends DataObject
 
     private static $has_one = array(
         'User' => 'Member',
-        'Ad' => 'Advertisement',
+        'Interactive' => 'Interactive',
     );
 
     private static $defaults = array(

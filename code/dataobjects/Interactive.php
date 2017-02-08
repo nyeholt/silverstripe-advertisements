@@ -5,7 +5,7 @@
  * @author Marcus Nyeholt <marcus@silverstripe.com.au>
  * @license BSD http://silverstripe.org/BSD-license
  */
-class Advertisement extends DataObject {
+class Interactive extends DataObject {
 
 	private static $use_js_tracking = false;
 
@@ -15,15 +15,15 @@ class Advertisement extends DataObject {
 
         'HTMLContent'       => 'HTMLText',
 
-        'Element'           => 'Varchar(64)',   // within which containing element will it display?
-        'Location'          => 'Varchar(64)',   // where in its container element?
-        'Frequency'         => 'Int',           // how often? 1 in X number of users see this
-        'Timeout'           => 'Int',            // how long until it displays?
-        'Transition'        => 'Varchar(64)',        // how does it appear?
-        'HideAfterInteraction'  => 'Boolean',   // should the item not appear if someone has interacted with it?
+        'Element'           => 'Varchar(64)',           // within which containing element will it display?
+        'Location'          => 'Varchar(64)',           // where in its container element?
+        'Frequency'         => 'Int',                   // how often? 1 in X number of users see this
+        'Timeout'           => 'Int',                   // how long until it displays?
+        'Transition'        => 'Varchar(64)',           // how does it appear?
+        'HideAfterInteraction'  => 'Boolean',           // should the item not appear if someone has interacted with it?
         'TrackViews'        => 'Varchar(16)',
 
-        'CompletionElement'   => 'Varchar(64)',       // what element needs clicking to be considered a 'complete' event
+        'CompletionElement'   => 'Varchar(64)',         // what element needs clicking to be considered a 'complete' event
 
         'SiteWide'          => 'Boolean',
         'ExcludeUrls'       => 'MultiValueField',
@@ -32,7 +32,7 @@ class Advertisement extends DataObject {
 
 	private static $has_one = array(
 		'InternalPage'		=> 'Page',
-		'Campaign'			=> 'AdCampaign',
+		'Campaign'			=> 'InteractiveCampaign',
 		'Image'				=> 'Image',
 	);
 
@@ -61,7 +61,7 @@ class Advertisement extends DataObject {
                 ->setRightTitle('CSS selector for element(s) that are considered the "completion" clicks'),
 
             CheckboxField::create('HideAfterInteraction'),
-            DropdownField::create('CampaignID', 'Campaign', AdCampaign::get())->setEmptyString('--none--')
+            DropdownField::create('CampaignID', 'Campaign', InteractiveCampaign::get())->setEmptyString('--none--')
 		)));
 
         if (Permission::check('ADMIN')) {
@@ -129,7 +129,7 @@ class Advertisement extends DataObject {
 
 	public function getImpressions() {
 		if (!$this->impressions) {
-			/*$query = new SQLQuery('COUNT(*) AS Impressions', 'AdImpression', '"ClassName" = \'AdImpression\' AND "AdID" = '.$this->ID);
+			/*$query = new SQLQuery('COUNT(*) AS Impressions', 'InteractiveImpression', '"ClassName" = \'InteractiveImpression\' AND "InteractiveID" = '.$this->ID);
 			$res = $query->execute();
 			$obj = $res->first();
 
@@ -138,9 +138,9 @@ class Advertisement extends DataObject {
 				$this->impressions = $obj['Impressions'];
 			}*/
 
-			$this->impressions = AdImpression::get()->filter(array(
+			$this->impressions = InteractiveImpression::get()->filter(array(
 				'Interaction' => 'View',
-				'AdID' => $this->ID
+				'InteractiveID' => $this->ID
 			))->count();
 		}
 
@@ -152,9 +152,9 @@ class Advertisement extends DataObject {
 	public function getClicks() {
 		if (!$this->clicks) {
 			$this->clicks = 0;
-			$this->clicks = AdImpression::get()->filter(array(
+			$this->clicks = InteractiveImpression::get()->filter(array(
 				'Interaction' => 'Click',
-				'AdID' => $this->ID
+				'InteractiveID' => $this->ID
 			))->count();
 		}
 		return $this->clicks;
@@ -212,7 +212,7 @@ class Advertisement extends DataObject {
         
 		if (self::config()->use_js_tracking) {
 			Requirements::javascript(THIRDPARTY_DIR.'/jquery/jquery.js');
-			Requirements::javascript('advertisements/javascript/advertisements.js');
+			Requirements::javascript('advertisements/javascript/interactives.js');
 
 			$link = Convert::raw2att($this->InternalPageID ? $this->InternalPage()->AbsoluteLink() : $this->TargetURL);
 

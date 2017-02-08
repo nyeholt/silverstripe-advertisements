@@ -3,19 +3,19 @@
 /**
  * @author marcus
  */
-class AdvertisementControllerExtension extends Extension
+class InteractiveControllerExtension extends Extension
 {
     public function onAfterInit() {
         Requirements::javascript(THIRDPARTY_DIR.'/jquery/jquery.js');
-        Requirements::javascript('advertisements/javascript/advertisements.js');
+        Requirements::javascript('advertisements/javascript/interactives.js');
 
         $url = $this->owner->getRequest()->getURL();
 
-        $siteWide = Advertisement::get()->filter(['SiteWide' => 1]);
+        $siteWide = Interactive::get()->filter(['SiteWide' => 1]);
         
         $page = $this->owner->data();
         if ($page instanceof Page) {
-            $pageAds = Advertisement::get()->filterAny(['OnPages.ID' => $page->ID]);
+            $pageAds = Interactive::get()->filterAny(['OnPages.ID' => $page->ID]);
         }
 
         $ads = array_merge($siteWide->toArray(), $pageAds->toArray());
