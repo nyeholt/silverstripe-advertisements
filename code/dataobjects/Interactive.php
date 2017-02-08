@@ -37,7 +37,7 @@ class Interactive extends DataObject {
         'InteractiveLocationExtension',
     );
 
-    private static $summary_fields = array('Title');
+    private static $summary_fields = array('Title', 'Clicks', 'Impressions', 'Completes');
 
 	public function getCMSFields() {
 		$fields = new FieldList();
@@ -86,40 +86,51 @@ class Interactive extends DataObject {
 		return $fields;
 	}
 
-	protected $impressions;
-
 	public function getImpressions() {
-		if (!$this->impressions) {
-			/*$query = new SQLQuery('COUNT(*) AS Impressions', 'InteractiveImpression', '"ClassName" = \'InteractiveImpression\' AND "InteractiveID" = '.$this->ID);
-			$res = $query->execute();
-			$obj = $res->first();
-
-			$this->impressions = 0;
-			if ($obj) {
-				$this->impressions = $obj['Impressions'];
-			}*/
-
-			$this->impressions = InteractiveImpression::get()->filter(array(
-				'Interaction' => 'View',
-				'InteractiveID' => $this->ID
-			))->count();
-		}
-
-		return $this->impressions;
+		$stats = $this->getCollatedStatistics();
+        return isset($stats['View']) ? $stats['View'] : 0;
 	}
-
-	protected $clicks;
 
 	public function getClicks() {
-		if (!$this->clicks) {
-			$this->clicks = 0;
-			$this->clicks = InteractiveImpression::get()->filter(array(
-				'Interaction' => 'Click',
-				'InteractiveID' => $this->ID
-			))->count();
-		}
-		return $this->clicks;
+		$stats = $this->getCollatedStatistics();
+        return isset($stats['Click']) ? $stats['Click'] : 0;
 	}
+
+    public function getCompletes() {
+        $stats = $this->getCollatedStatistics();
+        return isset($stats['Complete']) ? $stats['Complete'] : 0;
+    }
+
+    protected $stats;
+
+    /**
+     * Get a list of statistics about how this interactive has been viewed and interacted with
+     *
+     * @param mixed $timeframe
+     * @return array
+     */
+    protected function getCollatedStatistics($timeframe = null) {
+        if ($this->stats) {
+            return $this->stats;
+        }
+
+        $stats = array(
+
+        );
+
+        $mappedStats = InteractiveImpression::get()->filter(array(
+            'InteractiveID' => $this->ID
+        ))->map('ID', 'Interaction');
+
+        foreach ($mappedStats as $id => $type) {
+            $current = isset($stats[$type]) ? $stats[$type] : 0;
+            $current += 1;
+            $stats[$type] = $current;
+        }
+
+        $this->stats = $stats;
+        return $stats;
+    }
 
 	public function forTemplate($width = null, $height = null) {
 		$inner = Convert::raw2xml($this->Title);
