@@ -37,6 +37,8 @@ class Interactive extends DataObject {
         'InteractiveLocationExtension',
     );
 
+    private static $tracker_type = 'Local';
+
     private static $summary_fields = array('Title', 'Clicks', 'Impressions', 'Completes');
 
 	public function getCMSFields() {
