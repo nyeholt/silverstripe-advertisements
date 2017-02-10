@@ -10,7 +10,7 @@ class InteractiveCampaign extends DataObject {
 		'Title'				=> 'Varchar',
         'Begins'            => 'Date',
 		'Expires'			=> 'Date',
-
+        'ResetStats'        => 'Boolean',
         'DisplayType'       => 'Varchar(64)',
 	);
 
@@ -30,6 +30,9 @@ class InteractiveCampaign extends DataObject {
     {
         $fields = parent::getCMSFields();
 
+        $reset = $fields->dataFieldByName('ResetStats');
+        $fields->addFieldToTab('Root.Interactives', $reset);
+
         $options = array(
             'random' => 'Always Random',
             'stickyrandom'  => 'Sticky Random',
@@ -40,6 +43,21 @@ class InteractiveCampaign extends DataObject {
         $df->setRightTitle("Should one random item of this list be displayed, or all of them at once? A 'Sticky' item is randomly chosen, but then always shown to the same user");
 
         return $fields;
+    }
+
+    public function onBeforeWrite()
+    {
+        parent::onBeforeWrite();
+
+        if ($this->ResetStats) {
+            foreach ($this->Interactives() as $interactive) {
+                $table = ClassInfo::baseDataClass('InteractiveImpression');
+                $query = new SQLDelete($table, ['InteractiveID' => $interactive->ID]);
+                $query->execute();
+            }
+        }
+
+        $this->ResetStats = false;
     }
 
     /**
