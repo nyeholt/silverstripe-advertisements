@@ -42,7 +42,7 @@ class Interactive extends DataObject {
 	public function getCMSFields() {
 		$fields = new FieldList();
 
-        $locations = ['prepend' => 'Top', 'append' => 'Bottom', 'before' => 'Before', 'after' => 'After',];
+        $locations = ['prepend' => 'Top', 'append' => 'Bottom', 'before' => 'Before', 'after' => 'After', 'html' => 'Replace content'];
         $transitions = ['show' => 'Immediate', 'fadeIn' => 'Fade In', 'slideDown' => 'Slide Down'];
         
 		$fields->push(new TabSet('Root', new Tab('Main',

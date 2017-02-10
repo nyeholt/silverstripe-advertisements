@@ -13,7 +13,7 @@
     
     var uuid = null;
     
-    var allowed_add_actions = ['prepend', 'append', 'before', 'after'];
+    var allowed_add_actions = ['prepend', 'append', 'before', 'after', 'html'];
     
     var current_id = get_url_param('int_id');
     
