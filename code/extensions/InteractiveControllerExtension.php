@@ -1,6 +1,9 @@
 <?php
 
 /**
+ * Controller extension that binds details of the configured interactives
+ * into the current page view
+ * 
  * @author marcus
  */
 class InteractiveControllerExtension extends Extension
@@ -39,11 +42,11 @@ class InteractiveControllerExtension extends Extension
             'endpoint'  => '',
             'trackviews'    => false,
             'trackclicks'   => true,
-            'trackforward'  => true,
             'remember'      => false,
             'campaigns'     => $items,
-            'tracker'       => '',
+            'tracker'       => 'Google', // Config::inst()->get('Interactive', 'tracker_type'),
         );
+
         $data = json_encode($data);
         Requirements::customScript('window.SSInteractives = {config: ' . $data . '};', 'ads');
     }
