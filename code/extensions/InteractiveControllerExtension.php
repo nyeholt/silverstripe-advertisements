@@ -44,7 +44,7 @@ class InteractiveControllerExtension extends Extension
             'trackclicks'   => true,
             'remember'      => false,
             'campaigns'     => $items,
-            'tracker'       => 'Google', // Config::inst()->get('Interactive', 'tracker_type'),
+            'tracker'       => Config::inst()->get('Interactive', 'tracker_type'),
         );
 
         $data = json_encode($data);
